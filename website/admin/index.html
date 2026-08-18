@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Framework Admin</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter',system-ui,sans-serif;font-size:14px;background:#0e0e0e;color:#e8e8e8;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+input,textarea,select,button{font-family:inherit;font-size:inherit}
+img{max-width:100%;display:block}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:#0a0a0a;display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-box{background:#161616;border:1px solid #2a2a2a;padding:48px;width:360px;border-radius:6px}
+.login-logo{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#5fa87a;margin-bottom:32px}
+.login-title{font-size:22px;font-weight:700;color:#fff;margin-bottom:8px}
+.login-sub{font-size:13px;color:#555;margin-bottom:32px}
+.login-field{margin-bottom:16px}
+.login-field label{display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#555;margin-bottom:8px}
+.login-field input{width:100%;background:#0e0e0e;border:1px solid #2a2a2a;color:#e8e8e8;padding:11px 14px;border-radius:4px;outline:none;transition:border-color .2s}
+.login-field input:focus{border-color:#5fa87a}
+.login-btn{width:100%;background:#1a3a2a;color:#fff;border:none;padding:13px;border-radius:4px;cursor:pointer;font-weight:600;font-size:13px;letter-spacing:.04em;margin-top:8px;transition:background .2s}
+.login-btn:hover{background:#14301f}
+.login-err{font-size:12px;color:#e04040;margin-top:12px;display:none}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.shake{animation:shake .4s ease}
+
+/* APP */
+#app{display:flex;flex-direction:column;height:100%;overflow:hidden}
+
+/* TOPBAR */
+#topbar{height:52px;background:#111;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0;gap:12px}
+.topbar-brand{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#5fa87a;white-space:nowrap}
+.topbar-status{font-size:11px;color:#3a3a3a;flex:1;text-align:center}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.tb-btn{padding:7px 14px;border-radius:4px;border:none;cursor:pointer;font-size:11px;font-weight:600;letter-spacing:.04em;transition:background .2s,transform .15s}
+.tb-btn:active{transform:scale(.97)}
+.btn-preview{background:#1e1e1e;color:#888;border:1px solid #2a2a2a}
+.btn-preview:hover{color:#e8e8e8;border-color:#444}
+.btn-save{background:#1a3a2a;color:#fff}
+.btn-save:hover{background:#143020}
+.btn-save.dirty{background:#2d6a45}
+.btn-signout{background:transparent;color:#555;border:1px solid transparent;padding:7px 10px}
+.btn-signout:hover{color:#999;border-color:#2a2a2a}
+
+/* MAIN LAYOUT */
+#main{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+#sidebar{width:220px;background:#111;border-right:1px solid #1e1e1e;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column;padding:12px 0 24px}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#3a3a3a;padding:16px 18px 6px}
+.sb-section:first-child{padding-top:8px}
+.sb-link{display:flex;align-items:center;gap:9px;padding:8px 18px;color:#666;cursor:pointer;border-left:2px solid transparent;transition:color .15s,background .15s,border-color .15s;font-size:12.5px;user-select:none}
+.sb-link:hover{color:#ccc;background:rgba(255,255,255,.03)}
+.sb-link.active{color:#e8e8e8;background:rgba(95,168,122,.08);border-left-color:#5fa87a}
+.sb-link svg{width:15px;height:15px;opacity:.6;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.sb-link.active svg{opacity:1}
+.sb-divider{height:1px;background:#1e1e1e;margin:8px 0}
+
+/* CONTENT AREA */
+#content{flex:1;overflow-y:auto;background:#0e0e0e}
+.panel{display:none;padding:32px 40px;max-width:900px}
+.panel.active{display:block}
+
+/* PANEL HEADINGS */
+.panel-title{font-size:22px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:-.02em}
+.panel-sub{font-size:13px;color:#555;margin-bottom:32px}
+.panel-section{margin-top:36px;padding-top:28px;border-top:1px solid #1e1e1e}
+.section-label{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#5fa87a;margin-bottom:16px}
+
+/* FORM ELEMENTS */
+.field{margin-bottom:20px}
+.field label{display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#555;margin-bottom:7px}
+.field input[type=text],.field input[type=url],.field input[type=email],.field input[type=number],.field textarea,.field select{width:100%;background:#161616;border:1px solid #2a2a2a;color:#e8e8e8;padding:10px 13px;border-radius:4px;outline:none;transition:border-color .2s;resize:vertical}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:#5fa87a}
+.field textarea{min-height:90px;line-height:1.6}
+.field-hint{font-size:11px;color:#3d3d3d;margin-top:5px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+input[type=color]{height:36px;width:52px;border:1px solid #2a2a2a;border-radius:4px;background:#161616;cursor:pointer;padding:3px}
+
+/* BUTTONS */
+.save-row{display:flex;gap:10px;margin-top:20px}
+.btn-primary{background:#1a3a2a;color:#fff;border:none;padding:10px 22px;border-radius:4px;cursor:pointer;font-weight:600;font-size:13px;transition:background .2s}
+.btn-primary:hover{background:#14301f}
+.btn-secondary{background:#1e1e1e;color:#888;border:1px solid #2a2a2a;padding:10px 20px;border-radius:4px;cursor:pointer;font-size:13px;transition:background .2s,color .2s}
+.btn-secondary:hover{background:#2a2a2a;color:#e8e8e8}
+
+/* CRUD */
+.crud-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.btn-add{background:#1e3a2a;color:#5fa87a;border:1px solid #2d5a3a;padding:8px 16px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;transition:background .2s}
+.btn-add:hover{background:#2a4a34}
+.crud-list{display:flex;flex-direction:column;gap:8px}
+.crud-item{background:#161616;border:1px solid #222;border-radius:4px;overflow:hidden}
+.crud-item-header{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;user-select:none;transition:background .2s}
+.crud-item-header:hover{background:#1a1a1a}
+.crud-drag{color:#333;font-size:14px;flex-shrink:0}
+.crud-item-name{flex:1;font-size:13px;font-weight:600;color:#ccc}
+.crud-item-role{font-size:11px;color:#555;flex:1}
+.crud-item-actions{display:flex;gap:6px;flex-shrink:0}
+.btn-edit{background:#1e2e1e;color:#5fa87a;border:1px solid #2a3a2a;padding:5px 11px;border-radius:3px;cursor:pointer;font-size:11px;transition:background .2s}
+.btn-move{background:#1a1a1a;color:#666;border:1px solid #2a2a2a;padding:5px 8px;border-radius:3px;cursor:pointer;font-size:11px;transition:background .2s}
+.btn-move:hover{color:#ccc}
+.btn-delete{background:#1e1010;color:#e04040;border:1px solid #3a2020;padding:5px 11px;border-radius:3px;cursor:pointer;font-size:11px;transition:background .2s}
+.btn-delete:hover{background:#2a1515}
+.crud-item-body{display:none;padding:20px 16px 16px;border-top:1px solid #1e1e1e;background:#131313}
+.crud-item-body.open{display:block}
+
+/* COLOR SWATCHES */
+.color-presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.color-swatch{width:32px;height:32px;border-radius:4px;cursor:pointer;border:2px solid transparent;transition:border-color .2s,transform .15s}
+.color-swatch:hover{transform:scale(1.1);border-color:rgba(255,255,255,.3)}
+.color-swatch.selected{border-color:#fff}
+
+/* TOGGLE */
+.toggle-row{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-slider{position:absolute;inset:0;background:#2a2a2a;border-radius:22px;cursor:pointer;transition:.2s}
+.toggle-slider::before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#666;border-radius:50%;transition:.2s}
+.toggle input:checked + .toggle-slider{background:#1a3a2a}
+.toggle input:checked + .toggle-slider::before{background:#5fa87a;transform:translateX(18px)}
+.toggle-label{font-size:13px;color:#ccc}
+
+/* TAGS */
+.tags-wrap{display:flex;flex-wrap:wrap;gap:6px;background:#161616;border:1px solid #2a2a2a;border-radius:4px;padding:8px;min-height:44px}
+.tags-wrap:focus-within{border-color:#5fa87a}
+.tag-chip{display:inline-flex;align-items:center;gap:5px;background:#1a3a2a;color:#5fa87a;padding:3px 8px;border-radius:3px;font-size:11px}
+.tag-rm{cursor:pointer;color:#5fa87a;opacity:.7;font-size:14px;line-height:1}
+.tag-rm:hover{opacity:1}
+.tags-input{background:transparent;border:none;outline:none;color:#e8e8e8;font-size:12px;min-width:120px;flex:1;padding:2px 4px}
+
+/* BIO PARAS */
+.bio-paras{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.bio-para-row{display:flex;gap:6px;align-items:flex-start}
+.bio-para-row textarea{flex:1;min-height:70px}
+.btn-rm-para{background:#1e1010;color:#e04040;border:1px solid #3a2020;padding:5px 8px;border-radius:3px;cursor:pointer;font-size:14px;line-height:1;flex-shrink:0;margin-top:2px;transition:background .2s}
+.btn-rm-para:hover{background:#2a1515}
+.btn-add-para{background:#1a1a1a;color:#5fa87a;border:1px solid #2a3a2a;padding:6px 14px;border-radius:3px;cursor:pointer;font-size:11px;transition:background .2s}
+.btn-add-para:hover{background:#253525}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;background:#1a3a2a;color:#fff;padding:12px 20px;border-radius:4px;font-size:12px;font-weight:600;letter-spacing:.04em;transform:translateY(80px);opacity:0;transition:transform .3s cubic-bezier(.22,1,.36,1),opacity .3s;z-index:9998;pointer-events:none}
+#toast.show{transform:translateY(0);opacity:1}
+
+/* DASHBOARD */
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.dash-card{background:#161616;border:1px solid #222;border-radius:6px;padding:20px}
+.dash-num{font-size:32px;font-weight:700;color:#fff;letter-spacing:-.03em;margin-bottom:4px}
+.dash-label{font-size:11px;color:#555;letter-spacing:.06em;text-transform:uppercase}
+.dash-links{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dash-link{background:#161616;border:1px solid #222;border-radius:6px;padding:16px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .2s,border-color .2s}
+.dash-link:hover{background:#1e1e1e;border-color:#333}
+.dash-link-label{font-size:13px;font-weight:600;color:#ccc}
+.dash-link-sub{font-size:11px;color:#444;margin-top:2px}
+.dash-link svg{width:18px;height:18px;color:#5fa87a;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+
+/* VISUAL EDITOR */
+#panel-visual-editor{display:none}
+#panel-visual-editor.active{position:fixed;top:52px;left:220px;right:0;bottom:0;display:flex;flex-direction:column;z-index:10;background:#0e0e0e}
+.ve-toolbar{display:flex;align-items:center;gap:12px;padding:12px 20px;background:#111;border-bottom:1px solid #1e1e1e;flex-shrink:0}
+.ve-page-sel{background:#1a1a1a;border:1px solid #2a2a2a;color:#e8e8e8;padding:7px 12px;border-radius:4px;outline:none;font-size:12px}
+.ve-iframe{flex:1;min-height:0;border:none;background:#fff;display:block;width:100%}
+
+/* DASHBOARD PREVIEW */
+.dash-preview-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.dash-preview-outer{width:100%;overflow:hidden;border:1px solid #1e1e1e;border-radius:4px;background:#fff}
+.dash-preview-iframe{display:block;border:none;background:#fff}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Framework Berlin</div>
+    <h1 class="login-title">Admin Panel</h1>
+    <p class="login-sub">Sign in to manage your website content.</p>
+    <div class="login-field"><label>Password</label><input type="password" id="pw-input" autocomplete="current-password" placeholder="••••••••••" /></div>
+    <button class="login-btn" id="login-btn">Sign In</button>
+    <div class="login-err" id="login-err">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <div id="topbar">
+    <span class="topbar-brand">Framework Admin</span>
+    <span class="topbar-status" id="topbar-status">Loading…</span>
+    <div class="topbar-right">
+      <button class="tb-btn btn-preview" onclick="window.open('/framework-berlin/website/index.html','_blank')">Preview Site ↗</button>
+      <button class="tb-btn btn-save" id="save-btn" onclick="saveData()">Save Changes</button>
+      <button class="tb-btn btn-signout" onclick="signOut()">Sign Out</button>
+    </div>
+  </div>
+  <div id="main">
+    <nav id="sidebar">
+      <div class="sb-section">Overview</div>
+      <div class="sb-link active" data-panel="dashboard">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+      </div>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Pages</div>
+      <div class="sb-link" data-panel="page-home">
+        <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home
+      </div>
+      <div class="sb-link" data-panel="page-team">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Team
+      </div>
+      <div class="sb-link" data-panel="page-physio">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Physiotherapy
+      </div>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Content</div>
+      <div class="sb-link" data-panel="pricing">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Pricing
+      </div>
+      <div class="sb-link" data-panel="team-members">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Team Members
+      </div>
+      <div class="sb-link" data-panel="physiotherapists">
+        <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Physiotherapists
+      </div>
+      <div class="sb-link" data-panel="locations">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Locations
+      </div>
+      <div class="sb-link" data-panel="testimonials">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Testimonials
+      </div>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Design</div>
+      <div class="sb-link" data-panel="theme">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Theme &amp; Colors
+      </div>
+      <div class="sb-link" data-panel="visual-editor">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Visual Editor
+      </div>
+    </nav>
+
+    <div id="content">
+
+      <!-- DASHBOARD -->
+      <div id="panel-dashboard" class="panel active">
+        <h1 class="panel-title">Dashboard</h1>
+        <p class="panel-sub">Overview of your Framework Berlin website.</p>
+        <div class="dash-grid" id="dash-stats"></div>
+        <div class="section-label">Quick Access</div>
+        <div class="dash-links">
+          <div class="dash-link" onclick="switchPanel('pricing')">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <div><div class="dash-link-label">Pricing Packs</div><div class="dash-link-sub">Edit credit packs</div></div>
+          </div>
+          <div class="dash-link" onclick="switchPanel('team-members')">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div><div class="dash-link-label">Team Members</div><div class="dash-link-sub">Manage instructors</div></div>
+          </div>
+          <div class="dash-link" onclick="switchPanel('physiotherapists')">
+            <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+            <div><div class="dash-link-label">Physiotherapists</div><div class="dash-link-sub">Manage specialists</div></div>
+          </div>
+          <div class="dash-link" onclick="switchPanel('theme')">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="10"/></svg>
+            <div><div class="dash-link-label">Theme &amp; Colors</div><div class="dash-link-sub">Brand colour, booking link</div></div>
+          </div>
+        </div>
+        <div class="panel-section" style="max-width:100%;">
+          <div class="section-label">Live Preview</div>
+          <div class="dash-preview-bar">
+            <select class="ve-page-sel" id="dash-prev-sel" onchange="document.getElementById('dash-prev-frame').src=this.value">
+              <option value="/framework-berlin/website/index.html">Home</option>
+              <option value="/framework-berlin/website/team.html">Team</option>
+              <option value="/framework-berlin/website/physiotherapy.html">Physiotherapy</option>
+            </select>
+            <button class="tb-btn btn-signout" onclick="document.getElementById('dash-prev-frame').src=document.getElementById('dash-prev-frame').src" style="color:#888">↺ Refresh</button>
+            <button class="tb-btn btn-preview" onclick="window.open(document.getElementById('dash-prev-sel').value,'_blank')">Open in New Tab ↗</button>
+          </div>
+          <div class="dash-preview-outer" id="dash-prev-outer">
+            <iframe id="dash-prev-frame" class="dash-preview-iframe" src="/framework-berlin/website/index.html" scrolling="no"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOME PAGE -->
+      <div id="panel-page-home" class="panel">
+        <h1 class="panel-title">Home Page</h1>
+        <p class="panel-sub">Edit the hero, about section, and call-to-action.</p>
+        <div class="section-label">Hero</div>
+        <div class="field"><label>Headline (use \n for line breaks)</label><textarea id="h-hero-headline" rows="3"></textarea></div>
+        <div class="field"><label>Subheading</label><textarea id="h-hero-sub" rows="2"></textarea></div>
+        <div class="field"><label>Button Text</label><input type="text" id="h-hero-cta_text" /></div>
+        <div class="field"><label>Background Image URL</label><input type="url" id="h-hero-image" /></div>
+        <div class="panel-section">
+          <div class="section-label">About Section</div>
+          <div class="field"><label>Heading (use \n for line breaks)</label><textarea id="h-about-heading" rows="2"></textarea></div>
+          <div class="field"><label>Body Paragraph 1</label><textarea id="h-about-body_1" rows="4"></textarea></div>
+          <div class="field"><label>Body Paragraph 2</label><textarea id="h-about-body_2" rows="4"></textarea></div>
+        </div>
+        <div class="panel-section">
+          <div class="section-label">Call to Action</div>
+          <div class="field"><label>Heading</label><textarea id="h-cta-heading" rows="2"></textarea></div>
+          <div class="field"><label>Subtext</label><textarea id="h-cta-sub" rows="3"></textarea></div>
+        </div>
+        <div class="save-row"><button class="btn-primary" onclick="applyHomeFields();saveData()">Save Home Page</button></div>
+      </div>
+
+      <!-- TEAM PAGE -->
+      <div id="panel-page-team" class="panel">
+        <h1 class="panel-title">Team Page</h1>
+        <p class="panel-sub">Edit the team page header and philosophy section. To add/remove members, use Team Members.</p>
+        <div class="section-label">Page Header</div>
+        <div class="field-row">
+          <div class="field"><label>Eyebrow</label><input type="text" id="t-header-eyebrow" /></div>
+          <div class="field"><label>Title</label><input type="text" id="t-header-title" /></div>
+        </div>
+        <div class="field"><label>Description</label><textarea id="t-header-desc" rows="3"></textarea></div>
+        <div class="panel-section">
+          <div class="section-label">Philosophy Section</div>
+          <div class="field"><label>Heading</label><textarea id="t-philosophy-heading" rows="2"></textarea></div>
+          <div class="field"><label>Paragraph 1</label><textarea id="t-philosophy-body_1" rows="4"></textarea></div>
+          <div class="field"><label>Paragraph 2</label><textarea id="t-philosophy-body_2" rows="4"></textarea></div>
+        </div>
+        <div class="save-row"><button class="btn-primary" onclick="applyTeamPageFields();saveData()">Save Team Page</button></div>
+      </div>
+
+      <!-- PHYSIO PAGE -->
+      <div id="panel-page-physio" class="panel">
+        <h1 class="panel-title">Physiotherapy Page</h1>
+        <p class="panel-sub">Edit the hero, intro, process, and call-to-action sections. To add/remove specialists, use Physiotherapists.</p>
+        <div class="section-label">Hero</div>
+        <div class="field"><label>Eyebrow</label><input type="text" id="ph-hero-eyebrow" /></div>
+        <div class="field"><label>Title</label><input type="text" id="ph-hero-title" /></div>
+        <div class="field"><label>Description</label><textarea id="ph-hero-desc" rows="3"></textarea></div>
+        <div class="field-row">
+          <div class="field"><label>Button Text</label><input type="text" id="ph-hero-cta_text" /></div>
+          <div class="field"><label>Button URL</label><input type="text" id="ph-hero-cta_url" /></div>
+        </div>
+        <div class="field"><label>Hero Image URL</label><input type="url" id="ph-hero-image" /></div>
+        <div class="panel-section">
+          <div class="section-label">Intro Section</div>
+          <div class="field-row">
+            <div class="field"><label>Label</label><input type="text" id="ph-intro-label" /></div>
+            <div class="field"><label>Heading</label><input type="text" id="ph-intro-heading" /></div>
+          </div>
+          <div class="field"><label>Paragraph 1</label><textarea id="ph-intro-body_1" rows="3"></textarea></div>
+          <div class="field"><label>Paragraph 2</label><textarea id="ph-intro-body_2" rows="3"></textarea></div>
+          <div class="field"><label>Paragraph 3</label><textarea id="ph-intro-body_3" rows="3"></textarea></div>
+        </div>
+        <div class="panel-section">
+          <div class="section-label">Process Section</div>
+          <div class="field-row">
+            <div class="field"><label>Label</label><input type="text" id="ph-process-label" /></div>
+            <div class="field"><label>Heading</label><input type="text" id="ph-process-heading" /></div>
+          </div>
+        </div>
+        <div class="panel-section">
+          <div class="section-label">Call to Action</div>
+          <div class="field"><label>Heading</label><input type="text" id="ph-cta-heading" /></div>
+          <div class="field"><label>Subtext</label><textarea id="ph-cta-sub" rows="2"></textarea></div>
+          <div class="field-row">
+            <div class="field"><label>Button Text</label><input type="text" id="ph-cta-btn_text" /></div>
+            <div class="field"><label>Button URL</label><input type="text" id="ph-cta-btn_url" /></div>
+          </div>
+        </div>
+        <div class="save-row"><button class="btn-primary" onclick="applyPhysioPageFields();saveData()">Save Physio Page</button></div>
+      </div>
+
+      <!-- PRICING -->
+      <div id="panel-pricing" class="panel">
+        <h1 class="panel-title">Pricing</h1>
+        <p class="panel-sub">Manage the credit packs shown on the home page. Use ↑↓ to reorder.</p>
+        <div class="crud-header">
+          <div class="section-label" style="margin:0">Credit Packs</div>
+          <button class="btn-add" onclick="addPricingPack()">+ Add Pack</button>
+        </div>
+        <div class="crud-list" id="pricing-list"></div>
+        <div class="save-row" style="margin-top:24px"><button class="btn-primary" onclick="saveData()">Save Pricing</button></div>
+      </div>
+
+      <!-- TEAM MEMBERS -->
+      <div id="panel-team-members" class="panel">
+        <h1 class="panel-title">Team Members</h1>
+        <p class="panel-sub">Add, edit, remove, and reorder instructor cards on the Team page.</p>
+        <div class="crud-header">
+          <div class="section-label" style="margin:0">Instructors (<span id="team-count">0</span>)</div>
+          <button class="btn-add" onclick="addTeamMember()">+ Add Member</button>
+        </div>
+        <div class="crud-list" id="team-list"></div>
+        <div class="save-row" style="margin-top:24px"><button class="btn-primary" onclick="saveData()">Save Team</button></div>
+      </div>
+
+      <!-- PHYSIOTHERAPISTS -->
+      <div id="panel-physiotherapists" class="panel">
+        <h1 class="panel-title">Physiotherapists</h1>
+        <p class="panel-sub">Manage specialist profiles shown on the Physiotherapy page.</p>
+        <div class="crud-header">
+          <div class="section-label" style="margin:0">Specialists</div>
+          <button class="btn-add" onclick="addSpecialist()">+ Add Specialist</button>
+        </div>
+        <div class="crud-list" id="physio-list"></div>
+        <div class="save-row" style="margin-top:24px"><button class="btn-primary" onclick="saveData()">Save Specialists</button></div>
+      </div>
+
+      <!-- LOCATIONS -->
+      <div id="panel-locations" class="panel">
+        <h1 class="panel-title">Locations &amp; Hours</h1>
+        <p class="panel-sub">Edit studio addresses and opening hours for each location.</p>
+        <div id="locations-list"></div>
+        <div class="save-row"><button class="btn-primary" onclick="applyLocFields();saveData()">Save Locations</button></div>
+      </div>
+
+      <!-- TESTIMONIALS -->
+      <div id="panel-testimonials" class="panel">
+        <h1 class="panel-title">Testimonials</h1>
+        <p class="panel-sub">Manage the review carousel on the home page.</p>
+        <div class="crud-header">
+          <div class="section-label" style="margin:0">Reviews</div>
+          <button class="btn-add" onclick="addTestimonial()">+ Add Review</button>
+        </div>
+        <div class="crud-list" id="testimonial-list"></div>
+        <div class="save-row" style="margin-top:24px"><button class="btn-primary" onclick="saveData()">Save Testimonials</button></div>
+      </div>
+
+      <!-- THEME -->
+      <div id="panel-theme" class="panel">
+        <h1 class="panel-title">Theme &amp; Colors</h1>
+        <p class="panel-sub">Brand settings applied across the entire website.</p>
+        <div class="section-label">Brand Colour</div>
+        <div class="field">
+          <label>Accent Color</label>
+          <div style="display:flex;align-items:center;gap:12px">
+            <input type="color" id="th-accent" value="#1a3a2a" oninput="syncHex(this.value)" />
+            <input type="text" id="th-accent-hex" style="width:120px" placeholder="#1a3a2a" oninput="syncPicker(this.value)" />
+          </div>
+        </div>
+        <div class="color-presets" id="color-presets"></div>
+        <div class="panel-section">
+          <div class="section-label">Booking URL</div>
+          <div class="field"><label>Book Now Link</label><input type="url" id="th-booking-url" placeholder="https://classpass.com/" />
+            <div class="field-hint">Applied to all "Book Now" buttons across the site.</div></div>
+        </div>
+        <div class="panel-section">
+          <div class="section-label">Logo</div>
+          <div class="field"><label>Logo Image URL or Path</label><input type="text" id="th-logo" placeholder="/brand_assets/Framework_White_Transparent.png" /></div>
+        </div>
+        <div class="save-row"><button class="btn-primary" onclick="applyThemeFields();saveData()">Save Theme</button></div>
+      </div>
+
+      <!-- VISUAL EDITOR -->
+      <div id="panel-visual-editor">
+        <div class="ve-toolbar">
+          <span style="font-size:12px;font-weight:600;color:#888;white-space:nowrap">Preview</span>
+          <select class="ve-page-sel" id="ve-page-sel" onchange="loadVEPage(this.value)">
+            <option value="/framework-berlin/website/index.html">Home</option>
+            <option value="/framework-berlin/website/team.html">Team</option>
+            <option value="/framework-berlin/website/physiotherapy.html">Physiotherapy</option>
+          </select>
+          <button class="tb-btn btn-preview" onclick="window.open(document.getElementById('ve-page-sel').value,'_blank')">Open in New Tab ↗</button>
+          <button class="tb-btn btn-signout" onclick="document.getElementById('ve-frame').src=document.getElementById('ve-frame').src" style="color:#888">↺ Refresh</button>
+          <span style="font-size:11px;color:#3a3a3a;margin-left:auto">Save changes first, then refresh to see updates.</span>
+        </div>
+        <iframe id="ve-frame" class="ve-iframe" src="/framework-berlin/website/index.html"></iframe>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toast">Changes saved ✓</div>
+
+<script>
+/* ── STATE ────────────────────────────────────────────────── */
+let D = null, dirty = false;
+
+const COLOR_PRESETS = [
+  {label:'Forest Green',hex:'#1a3a2a'},{label:'Deep Navy',hex:'#1a2a3a'},
+  {label:'Charcoal',hex:'#2a2a2a'},{label:'Burgundy',hex:'#3a1a1a'},
+  {label:'Deep Slate',hex:'#1e2535'},{label:'Olive',hex:'#2e3220'},
+  {label:'Teal',hex:'#1a3535'},{label:'Mauve',hex:'#2e1a35'},
+];
+
+/* ── AUTH ─────────────────────────────────────────────────── */
+document.getElementById('pw-input').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+document.getElementById('login-btn').addEventListener('click', doLogin);
+
+function doLogin() {
+  if (document.getElementById('pw-input').value === 'framework2024') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    loadData();
+    initDashPreview();
+  } else {
+    const box = document.querySelector('.login-box');
+    box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
+    document.getElementById('login-err').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+  }
+}
+
+function signOut() {
+  if (dirty && !confirm('You have unsaved changes. Sign out anyway?')) return;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('pw-input').value = '';
+}
+
+/* ── DATA ─────────────────────────────────────────────────── */
+async function loadData() {
+  status('Loading…');
+  try {
+    D = await (await fetch('/admin/api/data')).json();
+    populateAll();
+    status('All changes saved'); setDirty(false);
+  } catch(e) { status('Error loading data'); }
+}
+
+async function saveData() {
+  if (!D) return;
+  status('Saving…');
+  try {
+    const r = await fetch('/admin/api/data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(D,null,2)});
+    if ((await r.json()).ok) { setDirty(false); toast('Changes saved ✓'); status('All changes saved'); }
+  } catch(e) { status('Save failed'); }
+}
+
+function setDirty(v) {
+  dirty = v;
+  document.getElementById('save-btn').classList.toggle('dirty', v);
+}
+function markDirty() { setDirty(true); status('Unsaved changes'); }
+function status(t) { document.getElementById('topbar-status').textContent = t; }
+function toast(msg) {
+  const el = document.getElementById('toast'); el.textContent = msg;
+  el.classList.add('show'); setTimeout(()=>el.classList.remove('show'), 2800);
+}
+
+/* ── PANEL NAV ────────────────────────────────────────────── */
+document.querySelectorAll('.sb-link').forEach(l => l.addEventListener('click', ()=>switchPanel(l.dataset.panel)));
+
+function switchPanel(id) {
+  document.querySelectorAll('.sb-link').forEach(l=>l.classList.toggle('active',l.dataset.panel===id));
+  document.querySelectorAll('.panel,#panel-visual-editor').forEach(p=>p.classList.remove('active'));
+  const t = document.getElementById('panel-'+id);
+  if (t) t.classList.add('active');
+  // Re-scale dashboard preview when returning to dashboard tab
+  if (id === 'dashboard') setTimeout(() => {
+    const outer = document.getElementById('dash-prev-outer');
+    const iframe = document.getElementById('dash-prev-frame');
+    if (!outer || !iframe) return;
+    const w = outer.getBoundingClientRect().width;
+    if (w < 10) return;
+    const s = w / 1440;
+    iframe.style.width = '1440px'; iframe.style.height = '2200px';
+    iframe.style.transform = 'scale(' + s + ')'; iframe.style.transformOrigin = 'top left';
+    outer.style.height = Math.round(2200 * s) + 'px';
+  }, 0);
+}
+
+/* ── POPULATE ALL ─────────────────────────────────────────── */
+function populateAll() {
+  if (!D) return;
+  populateDashboard(); populateHomeFields(); populateTeamPageFields();
+  populatePhysioPageFields(); populatePricingList(); populateTeamList();
+  populatePhysioList(); populateLocations(); populateTestimonials(); populateTheme();
+}
+
+/* ── DASHBOARD ────────────────────────────────────────────── */
+function populateDashboard() {
+  const m = (D.team&&D.team.members)||[], p = (D.home&&D.home.pricing)||[], s = (D.physio&&D.physio.specialists)||[];
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="dash-card"><div class="dash-num">${m.length}</div><div class="dash-label">Team Members</div></div>
+    <div class="dash-card"><div class="dash-num">${p.length}</div><div class="dash-label">Pricing Packs</div></div>
+    <div class="dash-card"><div class="dash-num">${s.length}</div><div class="dash-label">Physiotherapists</div></div>`;
+}
+
+/* ── HOME FIELDS ──────────────────────────────────────────── */
+function populateHomeFields() {
+  const h=D.home||{};
+  sv('h-hero-headline',(h.hero||{}).headline); sv('h-hero-sub',(h.hero||{}).sub);
+  sv('h-hero-cta_text',(h.hero||{}).cta_text); sv('h-hero-image',(h.hero||{}).image);
+  sv('h-about-heading',(h.about||{}).heading); sv('h-about-body_1',(h.about||{}).body_1);
+  sv('h-about-body_2',(h.about||{}).body_2);
+  sv('h-cta-heading',(h.cta||{}).heading); sv('h-cta-sub',(h.cta||{}).sub);
+}
+function applyHomeFields() {
+  D.home=D.home||{}; D.home.hero=D.home.hero||{}; D.home.about=D.home.about||{}; D.home.cta=D.home.cta||{};
+  D.home.hero.headline=gv('h-hero-headline'); D.home.hero.sub=gv('h-hero-sub');
+  D.home.hero.cta_text=gv('h-hero-cta_text'); D.home.hero.image=gv('h-hero-image');
+  D.home.about.heading=gv('h-about-heading'); D.home.about.body_1=gv('h-about-body_1');
+  D.home.about.body_2=gv('h-about-body_2');
+  D.home.cta.heading=gv('h-cta-heading'); D.home.cta.sub=gv('h-cta-sub');
+  markDirty();
+}
+
+/* ── TEAM PAGE FIELDS ─────────────────────────────────────── */
+function populateTeamPageFields() {
+  const t=D.team||{};
+  sv('t-header-eyebrow',(t.header||{}).eyebrow); sv('t-header-title',(t.header||{}).title);
+  sv('t-header-desc',(t.header||{}).desc);
+  sv('t-philosophy-heading',(t.philosophy||{}).heading);
+  sv('t-philosophy-body_1',(t.philosophy||{}).body_1); sv('t-philosophy-body_2',(t.philosophy||{}).body_2);
+}
+function applyTeamPageFields() {
+  D.team=D.team||{}; D.team.header=D.team.header||{}; D.team.philosophy=D.team.philosophy||{};
+  D.team.header.eyebrow=gv('t-header-eyebrow'); D.team.header.title=gv('t-header-title');
+  D.team.header.desc=gv('t-header-desc');
+  D.team.philosophy.heading=gv('t-philosophy-heading');
+  D.team.philosophy.body_1=gv('t-philosophy-body_1'); D.team.philosophy.body_2=gv('t-philosophy-body_2');
+  markDirty();
+}
+
+/* ── PHYSIO PAGE FIELDS ───────────────────────────────────── */
+function populatePhysioPageFields() {
+  const p=D.physio||{};
+  sv('ph-hero-eyebrow',(p.hero||{}).eyebrow); sv('ph-hero-title',(p.hero||{}).title);
+  sv('ph-hero-desc',(p.hero||{}).desc); sv('ph-hero-cta_text',(p.hero||{}).cta_text);
+  sv('ph-hero-cta_url',(p.hero||{}).cta_url); sv('ph-hero-image',(p.hero||{}).image);
+  sv('ph-intro-label',(p.intro||{}).label); sv('ph-intro-heading',(p.intro||{}).heading);
+  sv('ph-intro-body_1',(p.intro||{}).body_1); sv('ph-intro-body_2',(p.intro||{}).body_2);
+  sv('ph-intro-body_3',(p.intro||{}).body_3);
+  sv('ph-process-label',(p.process||{}).label); sv('ph-process-heading',(p.process||{}).heading);
+  sv('ph-cta-heading',(p.cta||{}).heading); sv('ph-cta-sub',(p.cta||{}).sub);
+  sv('ph-cta-btn_text',(p.cta||{}).btn_text); sv('ph-cta-btn_url',(p.cta||{}).btn_url);
+}
+function applyPhysioPageFields() {
+  D.physio=D.physio||{}; D.physio.hero=D.physio.hero||{}; D.physio.intro=D.physio.intro||{};
+  D.physio.process=D.physio.process||{}; D.physio.cta=D.physio.cta||{};
+  D.physio.hero.eyebrow=gv('ph-hero-eyebrow'); D.physio.hero.title=gv('ph-hero-title');
+  D.physio.hero.desc=gv('ph-hero-desc'); D.physio.hero.cta_text=gv('ph-hero-cta_text');
+  D.physio.hero.cta_url=gv('ph-hero-cta_url'); D.physio.hero.image=gv('ph-hero-image');
+  D.physio.intro.label=gv('ph-intro-label'); D.physio.intro.heading=gv('ph-intro-heading');
+  D.physio.intro.body_1=gv('ph-intro-body_1'); D.physio.intro.body_2=gv('ph-intro-body_2');
+  D.physio.intro.body_3=gv('ph-intro-body_3');
+  D.physio.process.label=gv('ph-process-label'); D.physio.process.heading=gv('ph-process-heading');
+  D.physio.cta.heading=gv('ph-cta-heading'); D.physio.cta.sub=gv('ph-cta-sub');
+  D.physio.cta.btn_text=gv('ph-cta-btn_text'); D.physio.cta.btn_url=gv('ph-cta-btn_url');
+  markDirty();
+}
+
+/* ── PRICING CRUD ─────────────────────────────────────────── */
+function populatePricingList() {
+  const packs=(D.home&&D.home.pricing)||[];
+  document.getElementById('pricing-list').innerHTML = packs.map((p,i)=>`
+    <div class="crud-item" id="pc-${i}">
+      <div class="crud-item-header" onclick="toggle('pcb-${i}')">
+        <span class="crud-drag">≡</span>
+        <span class="crud-item-name">${x(p.name)}</span>
+        <span class="crud-item-role">${x(p.credits)} · ${x(p.amount)}</span>
+        <div class="crud-item-actions">
+          <button class="btn-move" onclick="event.stopPropagation();mvPricing(${i},-1)">↑</button>
+          <button class="btn-move" onclick="event.stopPropagation();mvPricing(${i},1)">↓</button>
+          <button class="btn-delete" onclick="event.stopPropagation();delPricing(${i})">Delete</button>
+        </div>
+      </div>
+      <div class="crud-item-body" id="pcb-${i}">
+        <div class="field-row-3">
+          <div class="field"><label>Credits Label</label><input type="text" value="${x(p.credits)}" oninput="upPricing(${i},'credits',this.value)" /></div>
+          <div class="field"><label>Name</label><input type="text" value="${x(p.name)}" oninput="upPricing(${i},'name',this.value)" /></div>
+          <div class="field"><label>Price</label><input type="text" value="${x(p.amount)}" oninput="upPricing(${i},'amount',this.value)" /></div>
+        </div>
+        <div class="field"><label>Per-class note</label><input type="text" value="${x(p.note)}" oninput="upPricing(${i},'note',this.value)" /></div>
+        <div class="toggle-row">
+          <label class="toggle"><input type="checkbox" ${p.popular?'checked':''} onchange="upPricing(${i},'popular',this.checked)" /><span class="toggle-slider"></span></label>
+          <span class="toggle-label">Mark as "Most Popular"</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function upPricing(i,k,v){D.home.pricing[i][k]=v;refreshCrudHeader('pc-'+i,D.home.pricing[i].name,D.home.pricing[i].credits+' · '+D.home.pricing[i].amount);markDirty();}
+function addPricingPack(){D.home=D.home||{};D.home.pricing=D.home.pricing||[];D.home.pricing.push({credits:'X Credits',name:'New Pack',amount:'€0',note:'€0 per class',popular:false});populatePricingList();markDirty();setTimeout(()=>toggle('pcb-'+(D.home.pricing.length-1)),50);}
+function delPricing(i){if(!confirm('Delete this pack?'))return;D.home.pricing.splice(i,1);populatePricingList();markDirty();}
+function mvPricing(i,d){const a=D.home.pricing,j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];populatePricingList();markDirty();}
+
+/* ── TEAM MEMBERS CRUD ────────────────────────────────────── */
+function populateTeamList() {
+  const members=(D.team&&D.team.members)||[];
+  const cnt=document.getElementById('team-count');
+  if(cnt) cnt.textContent=members.length;
+  document.getElementById('team-list').innerHTML = members.map((m,i)=>`
+    <div class="crud-item" id="tc-${i}">
+      <div class="crud-item-header" onclick="toggle('tcb-${i}')">
+        <span class="crud-drag">≡</span>
+        <span class="crud-item-name">${x(m.name)}</span>
+        <span class="crud-item-role">${x(m.role)}</span>
+        <div class="crud-item-actions">
+          <button class="btn-move" onclick="event.stopPropagation();mvTeam(${i},-1)">↑</button>
+          <button class="btn-move" onclick="event.stopPropagation();mvTeam(${i},1)">↓</button>
+          <button class="btn-delete" onclick="event.stopPropagation();delTeam(${i})">Delete</button>
+        </div>
+      </div>
+      <div class="crud-item-body" id="tcb-${i}">
+        <div class="field-row">
+          <div class="field"><label>Name</label><input type="text" value="${x(m.name)}" oninput="upTeam(${i},'name',this.value)" /></div>
+          <div class="field"><label>Role</label><input type="text" value="${x(m.role)}" oninput="upTeam(${i},'role',this.value)" /></div>
+        </div>
+        <div class="field"><label>Photo URL</label><input type="text" value="${x(m.img)}" oninput="upTeam(${i},'img',this.value)" /></div>
+        <div class="field-row">
+          <div class="field"><label>Card Height (span: 36/44/52)</label><input type="number" min="24" max="72" value="${m.span||44}" oninput="upTeam(${i},'span',+this.value)" /></div>
+          <div class="field"><label>Anim Delay (0–4)</label><input type="number" min="0" max="4" value="${m.d||0}" oninput="upTeam(${i},'d',+this.value)" /></div>
+        </div>
+        <div class="field"><label>I love Lagree because…</label><textarea oninput="upTeam(${i},'love',this.value)">${x(m.love||'')}</textarea></div>
+        <div class="field"><label>Random fact</label><textarea oninput="upTeam(${i},'fact',this.value)">${x(m.fact||'')}</textarea></div>
+        <div class="field-row">
+          <div class="field"><label>Field 3 Label</label><input type="text" value="${x(m.f3l||'')}" oninput="upTeam(${i},'f3l',this.value)" /></div>
+          <div class="field"><label>Field 3 Answer</label><input type="text" value="${x(m.f3||'')}" oninput="upTeam(${i},'f3',this.value)" /></div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function upTeam(i,k,v){D.team.members[i][k]=v;refreshCrudHeader('tc-'+i,D.team.members[i].name,D.team.members[i].role);markDirty();}
+function addTeamMember(){D.team=D.team||{};D.team.members=D.team.members||[];D.team.members.push({name:'New Instructor',role:'Instructor',img:'public/team/placeholder.png',span:44,d:0,love:'',fact:'',f3l:'Favourite exercise',f3:''});populateTeamList();markDirty();setTimeout(()=>toggle('tcb-'+(D.team.members.length-1)),50);}
+function delTeam(i){if(!confirm('Remove this team member?'))return;D.team.members.splice(i,1);populateTeamList();markDirty();}
+function mvTeam(i,d){const a=D.team.members,j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];populateTeamList();markDirty();}
+
+/* ── PHYSIOTHERAPISTS CRUD ────────────────────────────────── */
+function populatePhysioList() {
+  const specs=(D.physio&&D.physio.specialists)||[];
+  document.getElementById('physio-list').innerHTML = specs.map((s,i)=>`
+    <div class="crud-item" id="sc-${i}">
+      <div class="crud-item-header" onclick="toggle('scb-${i}')">
+        <span class="crud-drag">≡</span>
+        <span class="crud-item-name">${x(s.name)}</span>
+        <span class="crud-item-role">${x(s.title)}</span>
+        <div class="crud-item-actions">
+          <button class="btn-move" onclick="event.stopPropagation();mvSpec(${i},-1)">↑</button>
+          <button class="btn-move" onclick="event.stopPropagation();mvSpec(${i},1)">↓</button>
+          <button class="btn-delete" onclick="event.stopPropagation();delSpec(${i})">Delete</button>
+        </div>
+      </div>
+      <div class="crud-item-body" id="scb-${i}">
+        <div class="field-row">
+          <div class="field"><label>Name</label><input type="text" value="${x(s.name)}" oninput="upSpec(${i},'name',this.value)" /></div>
+          <div class="field"><label>Title / Credentials</label><input type="text" value="${x(s.title)}" oninput="upSpec(${i},'title',this.value)" /></div>
+        </div>
+        <div class="field"><label>Photo URL</label><input type="text" value="${x(s.img)}" oninput="upSpec(${i},'img',this.value)" /></div>
+        <div class="field">
+          <label>Bio Paragraphs</label>
+          <div class="bio-paras" id="sp-bio-${i}">
+            ${(s.bio||[]).map((b,bi)=>`<div class="bio-para-row"><textarea oninput="upSpecBio(${i},${bi},this.value)">${x(b)}</textarea><button class="btn-rm-para" onclick="rmSpecBio(${i},${bi})">×</button></div>`).join('')}
+          </div>
+          <button class="btn-add-para" onclick="addSpecBio(${i})">+ Add paragraph</button>
+        </div>
+        <div class="field">
+          <label>Specialty Tags</label>
+          <div class="tags-wrap" id="sp-tags-${i}">
+            ${(s.tags||[]).map((t,ti)=>`<span class="tag-chip">${x(t)}<span class="tag-rm" onclick="rmTag(${i},${ti})">×</span></span>`).join('')}
+            <input class="tags-input" placeholder="Type tag, press Enter" onkeydown="addTag(event,${i})" />
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function upSpec(i,k,v){D.physio.specialists[i][k]=v;refreshCrudHeader('sc-'+i,D.physio.specialists[i].name,D.physio.specialists[i].title);markDirty();}
+function upSpecBio(i,bi,v){D.physio.specialists[i].bio[bi]=v;markDirty();}
+function addSpecBio(i){D.physio.specialists[i].bio=D.physio.specialists[i].bio||[];D.physio.specialists[i].bio.push('');populatePhysioList();toggle('scb-'+i);markDirty();}
+function rmSpecBio(i,bi){D.physio.specialists[i].bio.splice(bi,1);populatePhysioList();toggle('scb-'+i);markDirty();}
+function addTag(e,i){if(e.key!=='Enter')return;const v=e.target.value.trim();if(!v)return;D.physio.specialists[i].tags=D.physio.specialists[i].tags||[];D.physio.specialists[i].tags.push(v);e.target.value='';populatePhysioList();toggle('scb-'+i);markDirty();}
+function rmTag(i,ti){D.physio.specialists[i].tags.splice(ti,1);populatePhysioList();toggle('scb-'+i);markDirty();}
+function addSpecialist(){D.physio=D.physio||{};D.physio.specialists=D.physio.specialists||[];D.physio.specialists.push({name:'New Specialist',title:'Physiotherapist',img:'public/team/placeholder.png',bio:['Bio paragraph.'],tags:[]});populatePhysioList();markDirty();setTimeout(()=>toggle('scb-'+(D.physio.specialists.length-1)),50);}
+function delSpec(i){if(!confirm('Delete this specialist?'))return;D.physio.specialists.splice(i,1);populatePhysioList();markDirty();}
+function mvSpec(i,d){const a=D.physio.specialists,j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];populatePhysioList();markDirty();}
+
+/* ── LOCATIONS ────────────────────────────────────────────── */
+function populateLocations() {
+  const locs=(D.home&&D.home.locations)||[];
+  document.getElementById('locations-list').innerHTML = locs.map((loc,i)=>`
+    <div style="${i>0?'margin-top:32px;padding-top:28px;border-top:1px solid #1e1e1e':''}">
+      <div class="section-label">Studio ${i+1}: ${x(loc.neighborhood)}</div>
+      <div class="field-row">
+        <div class="field"><label>Neighborhood Label</label><input type="text" id="ln-${i}" value="${x(loc.neighborhood)}" /></div>
+        <div class="field"><label>Studio Name</label><input type="text" id="lname-${i}" value="${x(loc.name)}" /></div>
+      </div>
+      <div class="field"><label>Address</label><input type="text" id="ladr-${i}" value="${x(loc.address)}" /></div>
+      <div class="field"><label>Hours</label><input type="text" id="lh-${i}" value="${x(loc.hours)}" /></div>
+      <div class="field"><label>Image URL</label><input type="text" id="limg-${i}" value="${x(loc.image)}" /></div>
+    </div>`).join('');
+}
+function applyLocFields() {
+  const locs=D.home&&D.home.locations;
+  if(!locs)return;
+  locs.forEach((loc,i)=>{
+    loc.neighborhood=gv('ln-'+i)||loc.neighborhood;
+    loc.name=gv('lname-'+i)||loc.name;
+    loc.address=gv('ladr-'+i)||loc.address;
+    loc.hours=gv('lh-'+i)||loc.hours;
+    loc.image=gv('limg-'+i)||loc.image;
+  });
+  markDirty();
+}
+
+/* ── TESTIMONIALS CRUD ────────────────────────────────────── */
+function populateTestimonials() {
+  const items=(D.home&&D.home.testimonials)||[];
+  document.getElementById('testimonial-list').innerHTML = items.map((t,i)=>`
+    <div class="crud-item" id="tes-${i}">
+      <div class="crud-item-header" onclick="toggle('tesb-${i}')">
+        <span class="crud-drag">≡</span>
+        <span class="crud-item-name" style="font-size:12px;font-weight:400;color:#666">"${x(t.quote.substring(0,60))}${t.quote.length>60?'…':''}"</span>
+        <div class="crud-item-actions">
+          <button class="btn-move" onclick="event.stopPropagation();mvTes(${i},-1)">↑</button>
+          <button class="btn-move" onclick="event.stopPropagation();mvTes(${i},1)">↓</button>
+          <button class="btn-delete" onclick="event.stopPropagation();delTes(${i})">Delete</button>
+        </div>
+      </div>
+      <div class="crud-item-body" id="tesb-${i}">
+        <div class="field"><label>Quote</label><textarea rows="3" oninput="upTes(${i},'quote',this.value)">${x(t.quote)}</textarea></div>
+        <div class="field-row">
+          <div class="field"><label>Name / Attribution</label><input type="text" value="${x(t.name)}" oninput="upTes(${i},'name',this.value)" /></div>
+          <div class="field"><label>Badge</label><input type="text" value="${x(t.badge)}" oninput="upTes(${i},'badge',this.value)" /></div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function upTes(i,k,v){D.home.testimonials[i][k]=v;markDirty();}
+function addTestimonial(){D.home=D.home||{};D.home.testimonials=D.home.testimonials||[];D.home.testimonials.push({quote:'',name:'Verified Class Review',badge:'ClassPass'});populateTestimonials();markDirty();setTimeout(()=>toggle('tesb-'+(D.home.testimonials.length-1)),50);}
+function delTes(i){if(!confirm('Delete this testimonial?'))return;D.home.testimonials.splice(i,1);populateTestimonials();markDirty();}
+function mvTes(i,d){const a=D.home.testimonials,j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];populateTestimonials();markDirty();}
+
+/* ── THEME ────────────────────────────────────────────────── */
+function populateTheme() {
+  const acc=(D.site&&D.site.accent)||'#1a3a2a';
+  document.getElementById('th-accent').value=acc;
+  document.getElementById('th-accent-hex').value=acc;
+  sv('th-booking-url',(D.site||{}).booking_url);
+  sv('th-logo',(D.site||{}).logo);
+  document.getElementById('color-presets').innerHTML = COLOR_PRESETS.map(c=>
+    `<div class="color-swatch${c.hex===acc?' selected':''}" style="background:${c.hex}" title="${c.label}" onclick="pickPreset('${c.hex}')"></div>`
+  ).join('');
+}
+function pickPreset(hex){document.getElementById('th-accent').value=hex;document.getElementById('th-accent-hex').value=hex;document.querySelectorAll('.color-swatch').forEach(s=>s.classList.toggle('selected',s.title===COLOR_PRESETS.find(c=>c.hex===hex)?.label));}
+function syncHex(v){document.getElementById('th-accent-hex').value=v;}
+function syncPicker(v){if(/^#[0-9a-fA-F]{6}$/.test(v))document.getElementById('th-accent').value=v;}
+function applyThemeFields(){
+  D.site=D.site||{};
+  const hex=gv('th-accent-hex')||document.getElementById('th-accent').value;
+  if(hex)D.site.accent=hex;
+  const bu=gv('th-booking-url');if(bu)D.site.booking_url=bu;
+  const lg=gv('th-logo');if(lg)D.site.logo=lg;
+  markDirty();
+}
+
+/* ── DASHBOARD PREVIEW SCALE ──────────────────────────────── */
+function initDashPreview() {
+  const iframe = document.getElementById('dash-prev-frame');
+  const outer  = document.getElementById('dash-prev-outer');
+  if (!iframe || !outer) return;
+  const SITE_W = 1440, IFRAME_H = 2200;
+
+  function applyScale() {
+    const w = outer.getBoundingClientRect().width;
+    if (w < 10) return;
+    const s = w / SITE_W;
+    iframe.style.width           = SITE_W + 'px';
+    iframe.style.height          = IFRAME_H + 'px';
+    iframe.style.transform       = 'scale(' + s + ')';
+    iframe.style.transformOrigin = 'top left';
+    outer.style.height           = Math.round(IFRAME_H * s) + 'px';
+  }
+
+  // ResizeObserver fires when the container gains a real size (e.g. after #app
+  // transitions from display:none to display:flex — more reliable than offsetWidth
+  // read immediately after setting display which can still return 0).
+  new ResizeObserver(applyScale).observe(outer);
+
+  // Safety net: apply after layout is guaranteed stable
+  setTimeout(applyScale, 60);
+}
+
+/* ── VISUAL EDITOR ────────────────────────────────────────── */
+function loadVEPage(url){document.getElementById('ve-frame').src=url;}
+
+/* ── HELPERS ──────────────────────────────────────────────── */
+function toggle(id){const el=document.getElementById(id);if(el)el.classList.toggle('open');}
+function sv(id,val){const el=document.getElementById(id);if(el&&val!=null)el.value=String(val);}
+function gv(id){const el=document.getElementById(id);return el?el.value:'';}
+function x(s){if(s==null)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function refreshCrudHeader(itemId, name, role) {
+  const nm = document.querySelector('#'+itemId+' .crud-item-name');
+  const rl = document.querySelector('#'+itemId+' .crud-item-role');
+  if(nm)nm.textContent=name; if(rl)rl.textContent=role;
+}
+</script>
+</body>
+</html>

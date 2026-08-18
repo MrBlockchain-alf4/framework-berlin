@@ -1,0 +1,41 @@
+{
+  "logo": "/brand_assets/Framework_White_Transparent.png",
+  "accent_color": "#1a3a2a",
+
+  "hero_image": "/framework-berlin/website/public/studio/hero-1.jpg",
+  "hero_headline": "High-Intensity.\nLow-Impact.\nAll Results.",
+  "hero_sub": "Transform your body with Berlin's premier Lagree training — science-backed, results-driven.",
+  "hero_cta_text": "Book Your First Class",
+
+  "about_heading": "What is\nFramework?",
+  "about_body_1": "Framework is a boutique fitness studio offering a unique blend of Lagree™ training and active physiotherapy. Lagree is a highly intensive full-body muscle endurance workout performed on the Megaformer™ — a revolutionary machine designed to challenge every muscle group simultaneously.",
+  "about_body_2": "The method focuses on slow-twitch muscle fibers, building lean muscle mass and core strength while staying low-impact on your joints. You'll feel the burn during — and for up to 24 hours after — every session.",
+
+  "pricing_1_credits": "2 Credits",
+  "pricing_1_name":    "First Timer",
+  "pricing_1_amount":  "€35",
+  "pricing_1_note":    "€17.50 per class",
+
+  "pricing_2_credits": "1 Credit",
+  "pricing_2_name":    "Drop In",
+  "pricing_2_amount":  "€35",
+  "pricing_2_note":    "€35 per class",
+
+  "pricing_3_credits": "5 Credits",
+  "pricing_3_name":    "5 Classes",
+  "pricing_3_amount":  "€160",
+  "pricing_3_note":    "€32 per class",
+
+  "pricing_4_credits": "10 Credits",
+  "pricing_4_name":    "10 Classes",
+  "pricing_4_amount":  "€290",
+  "pricing_4_note":    "€29 per class",
+
+  "pricing_5_credits": "20 Credits",
+  "pricing_5_name":    "20 Classes",
+  "pricing_5_amount":  "€520",
+  "pricing_5_note":    "€26 per class",
+
+  "cta_heading": "Ready to Transform\nYour Body?",
+  "cta_sub": "Join our community of strong, empowered people across Berlin. Your first class is just one step away."
+}

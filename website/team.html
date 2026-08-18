@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team — Framework Berlin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #f9f9f9; color: #0a0a0a;
+      overflow-x: hidden; -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    /* ── NAV ─────────────────────────────────────────────────── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: 72px; display: flex; align-items: center;
+      justify-content: space-between; padding: 0 52px;
+      background: rgba(15,15,15,0.72);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .nav-logo { height: 72px; display: flex; align-items: center; }
+    .nav-logo img { height: 34px; width: auto; object-fit: contain; }
+    .nav-links { display: flex; gap: 32px; align-items: center; list-style: none; }
+    .nav-links a {
+      font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.6); position: relative; transition: color 0.2s;
+    }
+    .nav-links a.active, .nav-links a:hover { color: #fff; }
+    .nav-links a::after {
+      content: ''; position: absolute; left: 0; bottom: -3px;
+      width: 0; height: 1px; background: rgba(255,255,255,0.4);
+      transition: width 0.3s cubic-bezier(0.22,1,0.36,1);
+    }
+    .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+    .nav-drop { position: relative; }
+    .drop-menu {
+      position: absolute; top: calc(100% + 14px); left: 50%;
+      background: rgba(12,12,12,0.96); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.07); min-width: 200px; padding: 8px 0;
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s, transform 0.2s;
+      transform: translateX(-50%) translateY(-4px);
+    }
+    .nav-drop:hover .drop-menu { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+    .drop-menu a {
+      display: block; padding: 10px 20px; font-size: 11px !important;
+      letter-spacing: 0.08em !important; color: rgba(255,255,255,0.55) !important;
+      transition: color 0.2s, background 0.2s;
+    }
+    .drop-menu a::after { display: none !important; }
+    .drop-menu a:hover { color: #fff !important; background: rgba(255,255,255,0.04); }
+    .nav-cta {
+      font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase; color: #fff;
+      background: #1a3a2a; padding: 10px 24px; border-radius: 2px;
+      transition: background 0.2s, transform 0.2s; flex-shrink: 0;
+    }
+    .nav-cta:hover { background: #143020; transform: translateY(-1px); }
+    .nav-burger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; padding: 4px; background: none; border: none;
+    }
+    .nav-burger span { display: block; width: 22px; height: 1.5px; background: rgba(255,255,255,0.75); }
+    .mob-nav {
+      display: none; position: fixed; top: 72px; left: 0; right: 0;
+      background: rgba(12,12,12,0.97); backdrop-filter: blur(12px);
+      z-index: 199; padding: 20px 32px 28px; flex-direction: column; gap: 4px;
+    }
+    .mob-nav.open { display: flex; }
+    .mob-nav a {
+      font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.75);
+      padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .mob-cta {
+      background: #1a3a2a; color: white !important; text-align: center;
+      padding: 14px !important; border-radius: 2px; border-bottom: none !important; margin-top: 12px;
+    }
+
+    /* ── PAGE HEADER ─────────────────────────────────────────── */
+    .page-header { padding: 130px 0 0; background: #0a0a0a; }
+    .page-header-inner {
+      max-width: 1440px; margin: 0 auto; padding: 0 64px 56px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .page-eyebrow {
+      font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700;
+      letter-spacing: 0.28em; text-transform: uppercase;
+      color: rgba(255,255,255,0.3); margin-bottom: 20px;
+    }
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(56px, 8vw, 108px);
+      font-weight: 800; color: #fff;
+      letter-spacing: -0.04em; line-height: 0.92;
+    }
+    .page-header-right { max-width: 340px; padding-bottom: 12px; }
+    .page-desc { font-family: 'Inter', sans-serif; font-size: 15px; color: rgba(255,255,255,0.4); line-height: 1.75; }
+
+    /* ── META STRIP ──────────────────────────────────────────── */
+    .meta-strip { background: #0a0a0a; padding: 32px 0 48px; }
+    .meta-strip-inner {
+      max-width: 1440px; margin: 0 auto; padding: 0 64px;
+      display: flex; gap: 48px; align-items: center;
+    }
+    .meta-item { display: flex; flex-direction: column; gap: 4px; }
+    .meta-num { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+    .meta-label { font-family: 'Inter', sans-serif; font-size: 10px; color: rgba(255,255,255,0.25); letter-spacing: 0.08em; text-transform: uppercase; }
+    .meta-div { width: 1px; height: 36px; background: rgba(255,255,255,0.08); }
+
+    /* ── TEAM GRID ───────────────────────────────────────────── */
+    .team-section { background: #0a0a0a; }
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-auto-rows: 8px;
+      gap: 3px;
+    }
+
+    /* ── CARD ────────────────────────────────────────────────── */
+    .tm-card {
+      position: relative;
+      display: flex; flex-direction: column;
+      overflow: hidden; background: #1a1a1a;
+      opacity: 0; transform: translateY(28px);
+      transition:
+        opacity 0.7s cubic-bezier(0.22,1,0.36,1) calc(var(--d, 0) * 0.08s),
+        transform 0.7s cubic-bezier(0.22,1,0.36,1) calc(var(--d, 0) * 0.08s);
+    }
+    .tm-card.in { opacity: 1; transform: none; }
+
+    .tm-img-wrap { flex: 1; position: relative; overflow: hidden; min-height: 0; }
+    .tm-img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center top;
+      display: block;
+      filter: grayscale(100%) contrast(1.06) brightness(0.97);
+      transition: filter 0.55s ease, transform 0.65s cubic-bezier(0.22,1,0.36,1);
+    }
+    .tm-card:hover .tm-img { filter: grayscale(0%) contrast(1.02) brightness(1.0); transform: scale(1.04); }
+    .tm-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 50%);
+      opacity: 1; pointer-events: none;
+    }
+    .tm-card:hover .tm-overlay {
+      background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 55%);
+    }
+
+    /* info bar */
+    .tm-info {
+      flex-shrink: 0;
+      display: flex; align-items: center;
+      padding: 10px 10px 12px; background: #111;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .tm-info-text { flex: 1; min-width: 0; }
+    .tm-name {
+      font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase; color: #fff;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .tm-role {
+      font-family: 'Inter', sans-serif; font-size: 11px; color: rgba(255,255,255,0.55);
+      letter-spacing: 0.03em; margin-top: 4px;
+    }
+
+    /* open (+) button */
+    .tm-open-btn {
+      flex-shrink: 0; margin-left: 8px;
+      width: 22px; height: 22px;
+      display: flex; align-items: center; justify-content: center;
+      background: #fff; color: #0a0a0a; border: none; cursor: pointer;
+      font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 300; line-height: 1;
+      border-radius: 1px;
+      opacity: 0;
+      transition: opacity 0.25s ease, background 0.2s;
+    }
+    .tm-card:hover .tm-open-btn { opacity: 1; }
+    .tm-open-btn:hover { background: #e0e0e0; }
+
+    /* ── BIO PANEL ───────────────────────────────────────────── */
+    .tm-bio-panel {
+      position: absolute; inset: 0; z-index: 20;
+      background: #0a0a0a;
+      display: flex; flex-direction: column;
+      padding: 16px 16px 14px;
+      overflow-y: auto;
+      transform: translateY(101%);
+      transition: transform 0.45s cubic-bezier(0.22,1,0.36,1);
+    }
+    .tm-card.open .tm-bio-panel { transform: translateY(0); }
+
+    .tm-bio-top {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 10px; flex-shrink: 0;
+    }
+    .tm-bio-head {}
+    .tm-bio-pname {
+      font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+      letter-spacing: 0.09em; text-transform: uppercase; color: #fff; line-height: 1;
+    }
+    .tm-bio-prole {
+      font-family: 'Inter', sans-serif; font-size: 9.5px;
+      color: rgba(255,255,255,0.32); letter-spacing: 0.05em; margin-top: 3px;
+    }
+    .tm-bio-close {
+      flex-shrink: 0; margin-left: 8px; margin-top: -2px;
+      width: 20px; height: 20px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5);
+      border: none; cursor: pointer; font-size: 15px; line-height: 1;
+      border-radius: 1px; transition: background 0.2s, color 0.2s;
+    }
+    .tm-bio-close:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+    .tm-bio-divider { height: 1px; background: rgba(255,255,255,0.08); margin-bottom: 12px; flex-shrink: 0; }
+
+    .tm-bio-fields { display: flex; flex-direction: column; gap: 11px; }
+    .tm-bio-field {}
+    .tm-bio-label {
+      font-family: 'Inter', sans-serif; font-size: 7.5px; font-weight: 600;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: rgba(255,255,255,0.28); margin-bottom: 4px;
+    }
+    .tm-bio-val {
+      font-family: 'Syne', sans-serif; font-size: 11.5px; font-weight: 400;
+      color: rgba(255,255,255,0.88); line-height: 1.55; font-style: italic;
+    }
+    .tm-bio-val.plain { font-style: normal; font-weight: 500; letter-spacing: 0.01em; }
+
+    /* ── PHOTO PLACEHOLDER ───────────────────────────────────── */
+    .tm-img-placeholder {
+      width: 100%; height: 100%;
+      background: #161616;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 10px; min-height: 160px;
+    }
+    .tm-img-placeholder svg { width: 44px; height: 44px; opacity: 0.28; }
+    .tm-img-placeholder span {
+      font-family: 'Inter', sans-serif;
+      font-size: 9px; font-weight: 600;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: rgba(255,255,255,0.18);
+    }
+
+    /* ── PHILOSOPHY ──────────────────────────────────────────── */
+    .philosophy { background: #0a0a0a; padding: 120px 0; }
+    .philosophy-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 64px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: center;
+    }
+    .philosophy h2 { font-family: 'Syne', sans-serif; font-size: clamp(32px,4vw,52px); font-weight: 700; color: #fff; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 24px; }
+    .philosophy p { font-family: 'Inter', sans-serif; font-size: 15px; color: rgba(255,255,255,0.5); line-height: 1.85; margin-bottom: 16px; }
+    .philosophy-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    .phil-stat { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px; }
+    .phil-stat-num { font-family: 'Syne', sans-serif; font-size: 34px; font-weight: 700; color: #fff; letter-spacing: -0.03em; line-height: 1; margin-bottom: 6px; }
+    .phil-stat-label { font-family: 'Inter', sans-serif; font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: 0.05em; }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    .footer { background: #0a0a0a; padding: 72px 0 0; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; padding: 0 64px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 64px; padding-bottom: 64px; }
+    .footer-logo img { height: 28px; width: auto; margin-bottom: 12px; }
+    .footer-tagline { font-family: 'Inter', sans-serif; font-size: 13px; color: #3a3a3a; line-height: 1.6; max-width: 200px; }
+    .f-col-head { font-family: 'Syne', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.18); margin-bottom: 18px; }
+    .f-links { display: flex; flex-direction: column; gap: 12px; }
+    .f-links a { font-family: 'Inter', sans-serif; font-size: 14px; color: #444; transition: color 0.2s; }
+    .f-links a:hover { color: #f5f1ed; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.04); padding: 24px 0; display: flex; align-items: center; justify-content: center; }
+    .footer-bottom p { font-family: 'Inter', sans-serif; font-size: 12px; color: #2a2a2a; }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @media (max-width: 1200px) {
+      .team-grid { grid-template-columns: repeat(4, 1fr); }
+      .page-header-inner, .meta-strip-inner, .philosophy-inner, .footer-inner { padding-left: 40px; padding-right: 40px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+    }
+    @media (max-width: 900px) {
+      .page-header-inner { flex-direction: column; align-items: flex-start; gap: 24px; }
+      .page-header-right { max-width: 100%; }
+      .philosophy-inner { grid-template-columns: 1fr; gap: 48px; }
+    }
+    @media (max-width: 768px) {
+      .nav { padding: 0 24px; }
+      .nav-links, .nav-cta { display: none; }
+      .nav-burger { display: flex; }
+      .page-header-inner, .meta-strip-inner, .philosophy-inner, .footer-inner { padding-left: 24px; padding-right: 24px; }
+      .team-grid { grid-template-columns: repeat(3, 1fr); }
+      .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+    }
+    @media (max-width: 480px) { .team-grid { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+
+  <header class="nav">
+    <div class="nav-logo"><a href="index.html"><img src="/brand_assets/Framework_White_Transparent.png" alt="Framework Berlin" /></a></div>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="index.html#about">About</a></li>
+        <li class="nav-drop">
+          <a href="index.html#locations">Studios ▾</a>
+          <div class="drop-menu">
+            <a href="index.html#locations">Prenzlauer Berg</a>
+            <a href="index.html#locations">Kreuzberg</a>
+          </div>
+        </li>
+        <li><a href="index.html#classes">Lagree</a></li>
+        <li><a href="physiotherapy.html">PT &amp; Physiotherapy</a></li>
+        <li><a href="team.html" class="active">Team</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <a href="https://classpass.com/" class="nav-cta" target="_blank" rel="noopener">Book Now</a>
+    <button class="nav-burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </header>
+  <nav class="mob-nav" id="mob-nav">
+    <a href="index.html#about">About</a>
+    <a href="index.html#locations">Studios</a>
+    <a href="index.html#classes">Lagree</a>
+    <a href="physiotherapy.html">PT &amp; Physiotherapy</a>
+    <a href="team.html">Team</a>
+    <a href="index.html#contact">Contact</a>
+    <a href="https://classpass.com/" class="mob-cta" target="_blank" rel="noopener">Book Now</a>
+  </nav>
+
+  <div class="page-header">
+    <div class="page-header-inner">
+      <div>
+        <p class="page-eyebrow">Teacher-owned studio · Berlin</p>
+        <h1 class="page-title">The<br>Team</h1>
+      </div>
+      <div class="page-header-right">
+        <p class="page-desc">A collective of Lagree-certified instructors, physiotherapists, and movement specialists — here to push you, guide you, and celebrate every shake.</p>
+      </div>
+    </div>
+  </div>
+  <div class="meta-strip">
+    <div class="meta-strip-inner">
+      <div class="meta-item"><div class="meta-num">32+</div><div class="meta-label">Team members</div></div>
+      <div class="meta-div"></div>
+      <div class="meta-item"><div class="meta-num">2</div><div class="meta-label">Studio locations</div></div>
+      <div class="meta-div"></div>
+      <div class="meta-item"><div class="meta-num">Lagree™</div><div class="meta-label">Certified</div></div>
+    </div>
+  </div>
+
+  <section class="team-section">
+    <div class="team-grid" id="team-grid"></div>
+  </section>
+
+  <section class="philosophy">
+    <div class="philosophy-inner">
+      <div>
+        <h2>Teacher-owned.<br>Movement-first.</h2>
+        <p>Framework Berlin was founded by teachers who believe the best fitness experience comes from instructors who practice what they teach. Every member of our team is trained to the highest standard in the Lagree method.</p>
+        <p>We are a community of movement specialists dedicated to helping you achieve real, lasting results — safely, efficiently, and with care.</p>
+      </div>
+      <div class="philosophy-stats">
+        <div class="phil-stat"><div class="phil-stat-num">32+</div><div class="phil-stat-label">Team members</div></div>
+        <div class="phil-stat"><div class="phil-stat-num">2</div><div class="phil-stat-label">Studio locations</div></div>
+        <div class="phil-stat"><div class="phil-stat-num">500+</div><div class="phil-stat-label">Active members</div></div>
+        <div class="phil-stat"><div class="phil-stat-num">4.9★</div><div class="phil-stat-label">Average rating</div></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo"><img src="/brand_assets/Framework_White_Transparent.png" alt="Framework Berlin" /></div>
+          <p class="footer-tagline">Premium Lagree &amp; Physiotherapy Studio in Berlin</p>
+        </div>
+        <div>
+          <div class="f-col-head">Studio</div>
+          <ul class="f-links">
+            <li><a href="index.html#classes">Group Lagree</a></li>
+            <li><a href="index.html#classes">Personal Training</a></li>
+            <li><a href="physiotherapy.html">Physiotherapy</a></li>
+            <li><a href="team.html">Our Team</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="f-col-head">Locations</div>
+          <ul class="f-links">
+            <li><a href="index.html#locations">Prenzlauer Berg</a></li>
+            <li><a href="index.html#locations">Kreuzberg</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="f-col-head">Contact</div>
+          <ul class="f-links">
+            <li><a href="https://classpass.com/" target="_blank" rel="noopener">Book on ClassPass</a></li>
+            <li><a href="mailto:hello@frameworkberlin.com">hello@frameworkberlin.com</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-inner"><div class="footer-bottom"><p>© 2026 Framework Berlin. All rights reserved.</p></div></div>
+  </footer>
+
+  <script src="/framework-berlin/website/admin/page-loader.js" defer></script>
+  <script>
+    // ── TEAM DATA ─────────────────────────────────────────────────────────────
+    const TEAM = [
+      {
+        name: 'Louise', role: 'Instructor · Front of House',
+        img: 'public/team/louise.png', span: 52, d: 0,
+        love: `there's no better workout to achieve mind-muscle connection — and even though your body is working super hard, it feels meditative.`,
+        fact: `I've been living in Berlin for 10 years but I'm originally from tiny Luxembourg.`,
+        f3l: 'Favourite exercise', f3: `Plank to pike &amp; anything arms!`,
+      },
+      {
+        name: 'Diya', role: 'Instructor',
+        img: 'public/team/diya.png', span: 44, d: 1,
+        love: `it's efficient — a cardiovascular and muscle-building workout in one, perfect for busy people and moms like me.`,
+        fact: `Just one? I was bitten by a lion.`,
+        f3l: 'Favourite exercise', f3: `Any sort of Wheelbarrow × Cobra or Push-Up combo.`,
+      },
+      {
+        name: 'Celia', role: 'Instructor',
+        img: 'public/team/celia.jpg', span: 36, d: 2,
+        love: `it's helped me learn to embrace slowness and understand that less is often more. It gives me the best foundation of functional strength.`,
+        fact: `My last name is Morris &amp; I was born in Morristown.`,
+        f3l: 'Music style', f3: `Electronic pop with sprinkles of rock, country, hip hop, Arabic electronic, R&amp;B, dub. Expect the unexpected.`,
+      },
+      {
+        name: 'Juni', role: 'Instructor · Physiotherapist',
+        img: 'public/team/juni.png', span: 52, d: 3,
+        love: `it's challenging, covers all important movement patterns in their multidimensional ways, and is my base for feeling strong and in control.`,
+        fact: `I'm afraid of ladybugs.`,
+        f3l: 'Favourite exercise', f3: `The reverse giant kneeling crunch.`,
+      },
+      {
+        name: 'Kika', role: 'Instructor',
+        img: 'public/team/kika.jpg', span: 44, d: 4,
+        love: `it pushes me to my limits and calms me down at the same time.`,
+        fact: `I am unbelievably clumsy and have a weakness for anything French.`,
+        f3l: 'Music style', f3: `RnB, Psychedelic Pop, Afro House.`,
+      },
+      {
+        name: 'Katta', role: 'Instructor',
+        img: 'public/team/katta.png', span: 36, d: 0,
+        love: `it keeps challenging and grounding me every time I step on the Mega — I love how it lets me "leave reality" and calms my very busy mind.`,
+        fact: `I'm in love with good food and veggies but I truly dislike capers and pickles.`,
+        f3l: 'Favourite exercise', f3: `Former figure skater — I love the skater, but also in a love-hate relationship with the dancing bear.`,
+      },
+      {
+        name: 'Lisanne', role: 'Physiotherapist',
+        img: 'public/team/lisanne.png', span: 52, d: 1,
+        love: `it helps me feel so connected to my body and what it's capable of. I can push myself to my absolute limit without ever losing touch — psychically and mentally.`,
+        fact: `I have a habit of misplacing or losing all of my material possessions.`,
+        f3l: 'Favourite exercise', f3: `One-sided wheelbarrow &amp; any deep lunge variation.`,
+      },
+      {
+        name: 'Shailan', role: 'Instructor',
+        img: 'public/team/shailan.png', span: 44, d: 2,
+        love: `it benefits my day-to-day life and makes me feel unstoppable.`,
+        fact: `Tell me everything about your dog. I am obsessed.`,
+        f3l: 'Music style', f3: `Everything Beyoncé, Hip Hop, Funky House &amp; R&amp;B.`,
+      },
+      {
+        name: 'Pauli', role: 'Instructor',
+        img: 'public/team/pauli.jpg', span: 36, d: 3,
+        love: `it pushes me to my mental and physical limits, zones me out and lets me forget the world for 50 minutes.`,
+        fact: `I can always tell you where to get the best coffee in town.`,
+        f3l: 'Favourite exercise', f3: `Curtsy Lunge.`,
+      },
+      {
+        name: 'Sarah', role: 'Instructor',
+        img: 'public/team/sarah.png', span: 52, d: 4,
+        love: `I love movement &amp; progression.`,
+        fact: `I love Spaghetti Eis.`,
+        f3l: 'Music style', f3: `Lo-Fi, all around 120bpm, 90s Hip Hop.`,
+      },
+      {
+        name: 'Johanna', role: 'Instructor',
+        img: 'public/team/johanna.png', span: 44, d: 0,
+        love: `it makes me feel stronger — not only physically, but mentally. "You can do everything for 20 seconds" — Kika's voice lives in my head rent free.`,
+        fact: `I have the memory of an elephant — tell me something once, I won't forget it.`,
+        f3l: 'Favourite exercise', f3: `Side torso crunch &amp; I are in an exclusive relationship.`,
+      },
+      {
+        name: 'Margot', role: 'Instructor',
+        img: 'public/team/margot.png', span: 52, d: 1,
+        love: `it is my mood booster — challenging my physical and mental limits one shake at a time.`,
+        fact: `I am fluent in four languages: Italian, French, German and English.`,
+        f3l: 'Music style', f3: `Electro, Pop, Rock, Rap — I am eclectic.`,
+      },
+      {
+        name: 'Anna', role: 'Instructor',
+        img: 'public/team/anna.png', span: 36, d: 2,
+        love: `it allows me to get out of my head like nothing else, while I can still be super present (and enjoy every shake).`,
+        fact: `Potatoes are my favourite veggie — so versatile!`,
+        f3l: 'Favourite exercise', f3: `French Twist, or anything obliques really!`,
+      },
+      {
+        name: 'Sasha', role: 'Instructor',
+        img: 'public/team/sasha.png', span: 44, d: 3,
+        love: `it energizes and grounds me at the same time. The burn feeling leaves you wanting more each time.`,
+        fact: `My parents registered my birthday on Sep 25th instead of Oct 25th.`,
+        f3l: 'Favourite exercise', f3: `Curtsy Lunge.`,
+      },
+      {
+        name: 'Ben', role: 'Instructor',
+        img: 'public/team/ben.png', span: 52, d: 4,
+        love: `it's brutal yet meditative — it trains your focus, self-talk and emotional control as much as your muscles. A constant negotiation with yourself.`,
+        fact: `I'm a Bravo expert — I excel at judging strangers' life choices from the comfort of my couch.`,
+        f3l: 'Music style', f3: `Techno in all forms — minimal, industrial, ambient. A perfect marriage for Lagree. A kind of "sonic plank."`,
+      },
+      {
+        name: 'Chele', role: 'Instructor',
+        img: 'public/team/chele.png', span: 52, d: 0,
+        love: `it connects body and mind like nothing else. It's where I find clarity, resilience, and the kind of strength that shows up in every part of life.`,
+        fact: `I absolutely love being at the beach — but I cannot stand sand on my body or feet.`,
+        f3l: 'Favourite exercise', f3: `Kneeling lat pulldown, or flying donkey kick when I'm feeling sassy.`,
+      },
+      {
+        name: 'Nadeen', role: 'Instructor',
+        img: 'public/team/nadeen.png', span: 36, d: 1,
+        love: `not only is it a physical workout but a mental one. I feel challenged every time I walk in and accomplished every time I walk out.`,
+        fact: `I used to play soccer professionally for 10 years.`,
+        f3l: 'Favourite exercise', f3: `The reverse giant soul train.`,
+      },
+      {
+        name: 'Jackie', role: 'Instructor',
+        img: 'public/team/jackie.png', span: 44, d: 2,
+        love: `it never gets easy — even the tiniest adjustment can have you shaking like it's your first class all over again!`,
+        fact: `I conquered my fear of deep water by learning to surf.`,
+        f3l: 'Favourite exercise', f3: `Floor plank-to-pike &amp; soul train.`,
+      },
+      {
+        name: 'Lynn', role: 'Instructor',
+        img: 'public/team/lynn.png', span: 52, d: 3,
+        love: `it helps me become the strongest version of myself.`,
+        fact: `I have tons of cute dresses in my wardrobe but will walk around like Adam Sandler 90% of the time.`,
+        f3l: 'Music style', f3: `Hip Hop, Deutschrap, R&amp;B.`,
+      },
+      {
+        name: 'Terry', role: 'Instructor',
+        img: 'public/team/terry.png', span: 36, d: 4,
+        love: `the mix of humility and strength I experience every time is humbling in the best way — I always leave feeling stronger and more accomplished.`,
+        fact: `A friend called me TerBear after Carebears in college — and that nickname somehow resurfaced in Berlin.`,
+        f3l: 'Favourite exercise', f3: `All kinds of planks. In my head, if monsters attacked the earth, I'd need a plank. Everyone needs to plank for over a minute!`,
+      },
+      {
+        name: 'Chelsi', role: 'Instructor',
+        img: 'public/team/chelsi.png', span: 44, d: 0,
+        love: `I love the feeling of getting stronger physically and mentally, and how it quiets and calms my mind in a world that's constantly overstimulating.`,
+        fact: `I'm from sunny Singapore but grew up in Bangkok — a tropical girlie always hunting for good Asian food in Berlin.`,
+        f3l: 'Music style', f3: `Usually House / Techno / Trance — music is expression; it deeply follows the peaks and troughs in your life.`,
+      },
+      {
+        name: 'Hannah', role: 'Instructor',
+        img: 'public/team/hannah.png', span: 52, d: 1,
+        love: null, fact: null, f3l: null, f3: null,
+      },
+      {
+        name: 'Rachel', role: 'Instructor',
+        img: 'public/team/rachel.png', span: 36, d: 2,
+        love: `it's tough, energizing, and leaves me feeling so strong. It's my favourite way to train abs and engage the entire core.`,
+        fact: `I was super shy as a kid, but my dream before fitness was to become a singer.`,
+        f3l: 'Favourite exercise', f3: `Catfish &amp; Elevator Lunge.`,
+      },
+      {
+        name: 'Cleo', role: 'Instructor',
+        img: 'public/team/cleo.png', span: 52, d: 3,
+        love: `it's the most challenging and humbling workout I know — intense yet low impact, and it lets me fully tune into my body without distractions.`,
+        fact: `When I was 10, I played the saxophone in front of King Charles.`,
+        f3l: 'Favourite exercise', f3: `Dancing bear &amp; giant side torso crunch.`,
+      },
+      {
+        name: 'Ella', role: 'Instructor',
+        img: 'public/team/ella.png', span: 44, d: 4,
+        love: `it's the only workout that makes me feel strong, sculpted, and just the right amount of unstoppable. Slow-twitch muscles on fire? Yes please.`,
+        fact: `I believe in three things: good form, good vibes, and never trusting a plank that feels too easy.`,
+        f3l: 'Favourite exercise', f3: `French Twist — nothing says snatched like obliques working overtime!`,
+      },
+      {
+        name: 'Dana', role: 'Instructor',
+        img: 'public/team/dana.png', span: 36, d: 0,
+        love: `it's as much a mental challenge as a physical one. The slow pace strengthens my mind-muscle connection in a way that improves my day-to-day life.`,
+        fact: `I worked on electronics that are currently orbiting in space.`,
+        f3l: 'Music style', f3: `A mix of everything — Afro house, pop, indie, bluegrass, Arabic. All of it.`,
+      },
+      {
+        name: 'Lisa', role: 'Instructor',
+        img: 'public/team/lisa.png', span: 52, d: 1,
+        love: `it makes me my strongest and happiest self, inside out. I've never left a class without a smile on my face.`,
+        fact: `I could eat the same thing every single day without getting bored.`,
+        f3l: 'Favourite exercise', f3: `Anything arms &amp; obliques.`,
+      },
+      {
+        name: 'Lara', role: 'Instructor',
+        img: 'public/team/lara.png', span: 44, d: 2,
+        love: `it proves, like nothing else, what you're capable of when your body and mind work together as a team.`,
+        fact: `When I'm really focused or stressed, I just start singing out loud — whatever song is on my mind. I literally cannot hold it back.`,
+        f3l: 'Favourite exercise', f3: `Express lunge, Cobra, and a good saw-to-inchworm combination.`,
+      },
+      {
+        name: 'Suse', role: 'Instructor',
+        img: 'public/team/suse.png', span: 36, d: 3,
+        love: `it makes me stronger both mentally and physically and calms my mind. Those 50 minutes of class are my meditation.`,
+        fact: `I absolutely hate cooking.`,
+        f3l: 'Music style', f3: `German Rap / Hip Hop, R'n'B — for workouts, anything with a beat that makes me wanna move.`,
+      },
+      {
+        name: 'Tiff', role: 'Instructor',
+        img: 'public/team/tiff.png', span: 52, d: 4,
+        love: `it shows me a different way to be strong — not only does the workout ground me, it connects my mind and body, one slow-twitch muscle at a time.`,
+        fact: `I only have nature-themed tattoos — animals, flowers, insects. I like to think of myself as a zookeeper.`,
+        f3l: 'Favourite exercise', f3: `I'm in a forever love-hate relationship with mega donkey kick and giant kneeling inner thighs.`,
+      },
+      {
+        name: 'Victoria', role: 'Instructor',
+        img: 'public/team/victoria.png', span: 44, d: 0,
+        love: `it combines intensity and movement in a way that challenges my body while delivering immediate results. I was instantly hooked!`,
+        fact: `I have a habit of starting new hobbies and not finishing them.`,
+        f3l: 'Favourite exercise', f3: `The bear in any variation!`,
+      },
+      {
+        name: 'Sofia', role: 'Instructor',
+        img: 'public/team/sofia.png', span: 36, d: 1,
+        love: `it's the perfect full-body workout — bringing you to muscle failure while strengthening joints and increasing mental resilience.`,
+        fact: `I'm a huge Cape Town and hiking lover — Lion's Head is my favourite morning workout and I've climbed it over 100 times.`,
+        f3l: 'Favourite exercise', f3: `Bear in all variations — perfect form means every single muscle is engaged.`,
+      },
+    ];
+
+    // ── RENDER CARDS ──────────────────────────────────────────────────────────
+    function buildCard(m) {
+      const hasBio = m.love !== null;
+      const openBtn = hasBio
+        ? `<button class="tm-open-btn" aria-label="Read ${m.name}'s bio">+</button>`
+        : '';
+      const bioPanel = hasBio ? `
+        <div class="tm-bio-panel" role="dialog" aria-label="${m.name}'s bio">
+          <div class="tm-bio-top">
+            <div class="tm-bio-head">
+              <div class="tm-bio-pname">${m.name}</div>
+              <div class="tm-bio-prole">${m.role}</div>
+            </div>
+            <button class="tm-bio-close" aria-label="Close bio">×</button>
+          </div>
+          <div class="tm-bio-divider"></div>
+          <div class="tm-bio-fields">
+            <div class="tm-bio-field">
+              <div class="tm-bio-label">I love Lagree</div>
+              <p class="tm-bio-val">"${m.love}"</p>
+            </div>
+            <div class="tm-bio-field">
+              <div class="tm-bio-label">Random fact</div>
+              <p class="tm-bio-val">"${m.fact}"</p>
+            </div>
+            <div class="tm-bio-field">
+              <div class="tm-bio-label">${m.f3l}</div>
+              <p class="tm-bio-val plain">${m.f3}</p>
+            </div>
+          </div>
+        </div>` : '';
+
+      return `<div class="tm-card" style="grid-row:span ${m.span}" data-d="${m.d}">
+        <div class="tm-img-wrap">
+          <div class="tm-img-placeholder">
+            <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="40" cy="30" r="16"/>
+              <path d="M10 72 C10 50 70 50 70 72"/>
+            </svg>
+            <span>Insert Photo</span>
+          </div>
+          <div class="tm-overlay"></div>
+        </div>
+        <div class="tm-info">
+          <div class="tm-info-text">
+            <div class="tm-name">${m.name}</div>
+            <div class="tm-role">${m.role}</div>
+          </div>
+          ${openBtn}
+        </div>
+        ${bioPanel}
+      </div>`;
+    }
+
+    window._fw_renderTeam = function(members) {
+      const grid = document.getElementById('team-grid');
+      if (!grid) return;
+      grid.innerHTML = members.map(buildCard).join('');
+      const cards = document.querySelectorAll('.tm-card');
+      cards.forEach(c => c.style.setProperty('--d', c.dataset.d || '0'));
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.04, rootMargin: '0px 0px -20px 0px' });
+      cards.forEach(c => io.observe(c));
+    };
+    window._fw_renderTeam(TEAM);
+
+    // ── BIO OPEN / CLOSE ──────────────────────────────────────────────────────
+    document.addEventListener('click', e => {
+      const openBtn  = e.target.closest('.tm-open-btn');
+      const closeBtn = e.target.closest('.tm-bio-close');
+      const panel    = e.target.closest('.tm-bio-panel');
+
+      // Close button inside panel
+      if (closeBtn) {
+        closeBtn.closest('.tm-card').classList.remove('open');
+        return;
+      }
+      // Click inside open panel (e.g. scroll) — don't close
+      if (panel) return;
+      // Open (+) button
+      if (openBtn) {
+        const card = openBtn.closest('.tm-card');
+        const wasOpen = card.classList.contains('open');
+        document.querySelectorAll('.tm-card.open').forEach(c => c.classList.remove('open'));
+        if (!wasOpen) card.classList.add('open');
+        return;
+      }
+      // Click anywhere outside open cards — close all
+      document.querySelectorAll('.tm-card.open').forEach(c => c.classList.remove('open'));
+    });
+
+    // ── HAMBURGER ─────────────────────────────────────────────────────────────
+    const burger = document.getElementById('burger');
+    const mobNav = document.getElementById('mob-nav');
+    burger.addEventListener('click', () => mobNav.classList.toggle('open'));
+    mobNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobNav.classList.remove('open')));
+  </script>
+</body>
+</html>

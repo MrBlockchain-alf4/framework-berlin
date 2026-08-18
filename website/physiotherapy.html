@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PT &amp; Physiotherapy — Framework Berlin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #ffffff;
+      color: #0a0a0a;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    /* ── NAVBAR ─────────────────────────────────────────────────── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 52px;
+      background: rgba(26,26,26,0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .nav-logo { height: 72px; display: flex; align-items: center; }
+    .nav-logo img { height: 36px; width: auto; object-fit: contain; }
+    .nav-links { display: flex; gap: 32px; align-items: center; list-style: none; }
+    .nav-links a {
+      font-family: 'Syne', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      position: relative;
+      transition: color 0.2s;
+    }
+    .nav-links a.active,
+    .nav-links a:hover { color: #fff; }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: -3px;
+      width: 0; height: 1px;
+      background: #1a3a2a;
+      transition: width 0.3s cubic-bezier(0.22,1,0.36,1);
+    }
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-drop { position: relative; }
+    .drop-menu {
+      position: absolute;
+      top: calc(100% + 14px);
+      left: 50%;
+      background: rgba(20,20,20,0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.08);
+      min-width: 200px;
+      padding: 8px 0;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s, transform 0.2s;
+      transform: translateX(-50%) translateY(-4px);
+    }
+    .nav-drop:hover .drop-menu {
+      opacity: 1; visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+    .drop-menu a {
+      display: block;
+      padding: 10px 20px;
+      font-size: 11px !important;
+      letter-spacing: 0.08em !important;
+      color: rgba(255,255,255,0.7) !important;
+      transition: color 0.2s, background 0.2s;
+    }
+    .drop-menu a::after { display: none !important; }
+    .drop-menu a:hover { color: #fff !important; background: rgba(255,255,255,0.05); }
+
+    .nav-cta {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #fff;
+      background: #1a3a2a;
+      padding: 11px 26px;
+      border-radius: 2px;
+      transition: background 0.2s, transform 0.2s;
+      flex-shrink: 0;
+    }
+    .nav-cta:hover { background: #143020; transform: translateY(-1px); }
+    .nav-burger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; padding: 4px; background: none; border: none;
+    }
+    .nav-burger span { display: block; width: 22px; height: 1.5px; background: rgba(255,255,255,0.8); }
+    .mob-nav {
+      display: none;
+      position: fixed;
+      top: 72px; left: 0; right: 0;
+      background: rgba(20,20,20,0.96);
+      backdrop-filter: blur(12px);
+      z-index: 199;
+      padding: 20px 32px 28px;
+      flex-direction: column; gap: 4px;
+    }
+    .mob-nav.open { display: flex; }
+    .mob-nav a {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: rgba(255,255,255,0.8);
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .mob-cta {
+      background: #1a3a2a; color: white !important;
+      text-align: center; padding: 14px !important;
+      border-radius: 2px; border-bottom: none !important;
+      margin-top: 12px;
+    }
+
+    /* ── HERO ─────────────────────────────────────────────────── */
+    .physio-hero-placeholder {
+      position: absolute; inset: 0;
+      background: #1a1a1a;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 14px;
+    }
+    .physio-hero-placeholder svg { width: 64px; height: 64px; opacity: 0.22; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; }
+    .physio-hero-placeholder span {
+      font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600;
+      letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.15);
+    }
+    .page-hero {
+      position: relative;
+      min-height: 72vh;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+    .hero-img {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      filter: grayscale(60%) contrast(1.1);
+    }
+    .hero-grad {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, rgba(10,10,10,0.9) 40%, rgba(10,10,10,0.3));
+    }
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 140px 80px 80px;
+      width: 100%;
+    }
+    .hero-eyebrow {
+      font-family: 'Syne', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 20px;
+    }
+    .hero-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(44px, 6vw, 80px);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.04em;
+      line-height: 0.95;
+      margin-bottom: 28px;
+      max-width: 640px;
+    }
+    .hero-desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 18px;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.7;
+      max-width: 520px;
+      margin-bottom: 40px;
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #fff;
+      background: #1a3a2a;
+      padding: 16px 32px;
+      border-radius: 2px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .hero-cta:hover { background: #143020; transform: translateY(-2px); }
+
+    /* ── INTRO ───────────────────────────────────────────────── */
+    .intro-section {
+      padding: 100px 0;
+      background: #fff;
+    }
+    .intro-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+    .intro-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: #1a3a2a;
+      margin-bottom: 20px;
+    }
+    .intro-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(28px, 3vw, 40px);
+      font-weight: 700;
+      color: #0a0a0a;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 0;
+    }
+    .intro-right p {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      color: #555;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+    .intro-right p:last-child { margin-bottom: 0; }
+    .intro-right p strong { color: #0a0a0a; font-weight: 600; }
+
+    /* ── SERVICES ────────────────────────────────────────────── */
+    .services-section {
+      padding: 0 0 100px;
+      background: #fff;
+    }
+    .services-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 80px;
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 0;
+    }
+    .srv-card {
+      background: #f9f9f7;
+      padding: 40px 32px;
+      border: 1px solid #eee;
+      transition: background 0.3s;
+    }
+    .srv-card:hover { background: #f0ede8; }
+    .srv-icon {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 20px;
+      color: #1a3a2a;
+    }
+    .srv-icon svg {
+      width: 100%;
+      height: 100%;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .srv-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #0a0a0a;
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+    .srv-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: #666;
+      line-height: 1.7;
+    }
+
+    /* ── TEAM PROFILES ───────────────────────────────────────── */
+    .team-section {
+      background: #0a0a0a;
+      padding: 120px 0 100px;
+    }
+    .team-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 80px;
+    }
+    .team-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 56px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .section-eyebrow {
+      font-family: 'Syne', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(28px, 3.5vw, 48px);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+      line-height: 1.0;
+      margin-bottom: 0;
+    }
+    .team-count-badge {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 8px 18px;
+      border-radius: 100px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .physio-profiles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3px;
+    }
+    /* Scroll-in animation */
+    .physio-card {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      min-height: 360px;
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.06);
+      overflow: hidden;
+      cursor: default;
+      opacity: 0;
+      transform: translateY(28px);
+      transition:
+        opacity 0.65s cubic-bezier(0.22,1,0.36,1),
+        transform 0.65s cubic-bezier(0.22,1,0.36,1),
+        border-color 0.3s;
+    }
+    .physio-card.pc-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .physio-card:hover {
+      border-color: rgba(255,255,255,0.13);
+    }
+    /* Image column — position:relative so img can use position:absolute */
+    .physio-img-wrap {
+      position: relative;
+      overflow: hidden;
+      background: #1a1a1a;
+    }
+    /* Robust fill: absolute so height is always 100% of grid row regardless of bio text length */
+    .physio-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+      filter: grayscale(100%) contrast(1.08) brightness(0.92);
+      transform: scale(1.0);
+      transition:
+        filter 0.65s cubic-bezier(0.22,1,0.36,1),
+        transform 0.65s cubic-bezier(0.22,1,0.36,1);
+    }
+    .physio-card:hover .physio-img {
+      filter: grayscale(0%) contrast(1.02) brightness(1.0);
+      transform: scale(1.05);
+    }
+    /* Subtle green tint overlay on hover */
+    .physio-img-tint {
+      position: absolute;
+      inset: 0;
+      background: rgba(26,58,42,0);
+      mix-blend-mode: multiply;
+      transition: background 0.65s cubic-bezier(0.22,1,0.36,1);
+      pointer-events: none;
+    }
+    .physio-card:hover .physio-img-tint {
+      background: rgba(26,58,42,0.18);
+    }
+    /* Photo placeholder */
+    .physio-img-placeholder {
+      position: absolute; inset: 0;
+      background: #161616;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 12px;
+    }
+    .physio-img-placeholder svg { width: 56px; height: 56px; opacity: 0.25; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; }
+    .physio-img-placeholder span {
+      font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.15);
+    }
+    /* Content column */
+    .physio-body {
+      padding: 44px 40px;
+      display: flex;
+      flex-direction: column;
+    }
+    .physio-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.025em;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .physio-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      color: #5fa87a;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .physio-bio {
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.85;
+      margin-bottom: 14px;
+    }
+    .physio-bio strong { color: rgba(255,255,255,0.8); font-weight: 600; }
+    .physio-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: auto;
+      padding-top: 28px;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: 'Inter', sans-serif;
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      border: 1px solid rgba(255,255,255,0.09);
+      background: rgba(255,255,255,0.03);
+      padding: 6px 13px;
+      border-radius: 100px;
+      transition: color 0.3s, background 0.3s, border-color 0.3s;
+    }
+    .tag::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 4px;
+      background: #5fa87a;
+      border-radius: 50%;
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+    .physio-card:hover .tag {
+      color: rgba(255,255,255,0.65);
+      background: rgba(26,58,42,0.18);
+      border-color: rgba(26,58,42,0.35);
+    }
+    .physio-card:hover .tag::before { opacity: 1; }
+
+    /* ── PROCESS ─────────────────────────────────────────────── */
+    .process-section {
+      background: #fff;
+      padding: 100px 0;
+    }
+    .process-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 80px;
+    }
+    .process-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: #1a3a2a;
+      margin-bottom: 16px;
+    }
+    .process-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(28px, 3vw, 44px);
+      font-weight: 700;
+      color: #0a0a0a;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 60px;
+      max-width: 480px;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border-top: 1px solid #e8e8e8;
+    }
+    .step { padding: 36px 28px 36px 0; border-right: 1px solid #e8e8e8; }
+    .step:last-child { border-right: none; padding-right: 0; }
+    .step-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 48px;
+      font-weight: 800;
+      color: #e8e8e8;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+    .step-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #0a0a0a;
+      margin-bottom: 8px;
+    }
+    .step-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: #888;
+      line-height: 1.6;
+    }
+
+    /* ── CTA STRIP ───────────────────────────────────────────── */
+    .cta-strip {
+      background: #1a3a2a;
+      padding: 80px 0;
+    }
+    .cta-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+    }
+    .cta-text h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(24px, 2.5vw, 36px);
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .cta-text p {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      color: rgba(255,255,255,0.6);
+    }
+    .cta-btn {
+      display: inline-flex;
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #1a3a2a;
+      background: #fff;
+      padding: 16px 32px;
+      border-radius: 2px;
+      transition: background 0.2s, transform 0.2s;
+      white-space: nowrap;
+    }
+    .cta-btn:hover { background: #f0ede8; transform: translateY(-2px); }
+
+    /* ── FOOTER ─────────────────────────────────────────────────── */
+    .footer { background: #0a0a0a; padding: 72px 0 0; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; padding: 0 80px; }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 64px;
+      padding-bottom: 64px;
+    }
+    .footer-logo img { height: 30px; width: auto; margin-bottom: 12px; }
+    .footer-tagline { font-family: 'Inter', sans-serif; font-size: 13px; color: #444; line-height: 1.6; max-width: 200px; }
+    .f-col-head {
+      font-family: 'Syne', sans-serif;
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      margin-bottom: 20px;
+    }
+    .f-links { display: flex; flex-direction: column; gap: 12px; }
+    .f-links a { font-family: 'Inter', sans-serif; font-size: 14px; color: #555; transition: color 0.2s; }
+    .f-links a:hover { color: #f5f1ed; }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding: 24px 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .footer-bottom p { font-family: 'Inter', sans-serif; font-size: 12px; color: #333; }
+
+    /* ── RESPONSIVE ─────────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .hero-inner, .intro-inner, .services-inner, .team-inner, .process-inner, .cta-inner, .footer-inner { padding: 0 48px; }
+      .physio-profiles { grid-template-columns: 1fr; }
+      .physio-card { grid-template-columns: 240px 1fr; }
+      .team-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+      .services-grid { grid-template-columns: 1fr 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+      .steps { grid-template-columns: repeat(2, 1fr); }
+      .step { padding: 28px 20px 28px 0; }
+    }
+    @media (max-width: 768px) {
+      .nav { padding: 0 24px; }
+      .nav-links, .nav-cta { display: none; }
+      .nav-burger { display: flex; }
+      .hero-inner, .intro-inner, .services-inner, .team-inner, .process-inner, .cta-inner, .footer-inner { padding: 0 24px; }
+      .intro-inner { grid-template-columns: 1fr; gap: 32px; }
+      .physio-card { grid-template-columns: 1fr; }
+      .physio-img-wrap { height: 280px; }
+      .services-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .step { border-right: none; border-bottom: 1px solid #e8e8e8; padding-right: 0; }
+      .step:last-child { border-bottom: none; }
+      .cta-inner { flex-direction: column; text-align: center; }
+      .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+      .hero-title { font-size: clamp(36px, 8vw, 56px); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="nav" id="nav">
+    <div class="nav-logo">
+      <a href="index.html">
+        <img src="/brand_assets/Framework_White_Transparent.png" alt="Framework Berlin" />
+      </a>
+    </div>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="index.html#about">About</a></li>
+        <li class="nav-drop">
+          <a href="index.html#locations">Studios ▾</a>
+          <div class="drop-menu">
+            <a href="index.html#locations">Prenzlauer Berg</a>
+            <a href="index.html#locations">Kreuzberg</a>
+          </div>
+        </li>
+        <li><a href="index.html#classes">Lagree</a></li>
+        <li><a href="physiotherapy.html" class="active">PT &amp; Physiotherapy</a></li>
+        <li><a href="team.html">Team</a></li>
+        <li><a href="index.html#contact">Newsletter</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <a href="https://classpass.com/" class="nav-cta" target="_blank" rel="noopener">Book Now</a>
+    <button class="nav-burger" id="burger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+  <nav class="mob-nav" id="mob-nav">
+    <a href="index.html#about">About</a>
+    <a href="index.html#locations">Studios</a>
+    <a href="index.html#classes">Lagree</a>
+    <a href="physiotherapy.html">PT &amp; Physiotherapy</a>
+    <a href="team.html">Team</a>
+    <a href="index.html#contact">Newsletter</a>
+    <a href="index.html#contact">Contact</a>
+    <a href="https://classpass.com/" class="mob-cta" target="_blank" rel="noopener">Book Now</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="page-hero">
+    <div class="physio-hero-placeholder">
+      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="30" r="16"/><path d="M10 72 C10 50 70 50 70 72"/></svg>
+      <span>Insert Photo</span>
+    </div>
+    <div class="hero-grad"></div>
+    <div class="hero-inner">
+      <p class="hero-eyebrow" data-fw="physio.hero.eyebrow">Personalized care</p>
+      <h1 class="hero-title" data-fw="physio.hero.title">PT &amp; Physio&shy;therapy</h1>
+      <p class="hero-desc" data-fw="physio.hero.desc">Move better. Feel better. Perform better. Evidence-based physiotherapy tailored to your body, your goals, and your life.</p>
+      <a href="mailto:hello@frameworkberlin.com" class="hero-cta" data-fw="physio.hero.cta_text">Book a Session →</a>
+    </div>
+  </section>
+
+  <!-- INTRO -->
+  <section class="intro-section">
+    <div class="intro-inner">
+      <div>
+        <div class="intro-label" data-fw="physio.intro.label">Our approach</div>
+        <h2 class="intro-heading" data-fw="physio.intro.heading">Root cause over symptom relief</h2>
+      </div>
+      <div class="intro-right">
+        <p data-fw="physio.intro.body_1">Are you dealing with pain, restrictions, or simply looking to improve your fitness and mobility? At Framework, we offer <strong>personalized sessions</strong> led by our experienced physiotherapists.</p>
+        <p data-fw="physio.intro.body_2">With a <strong>comprehensive medical assessment</strong>, our goal is to identify the root cause of your issues rather than simply treating the symptoms. We combine manual therapy, movement re-education, and exercise prescription tailored specifically to your needs.</p>
+        <p data-fw="physio.intro.body_3">Whether you're recovering from an injury, managing a chronic condition, or optimizing performance — we work with you at every stage.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="services-section">
+    <div class="services-inner">
+      <div id="fw-services-root" class="services-grid">
+        <div class="srv-card">
+          <div class="srv-icon">
+            <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/></svg>
+          </div>
+          <div class="srv-title">Medical Assessment</div>
+          <p class="srv-text">A thorough initial evaluation to understand your history, movement patterns, and underlying causes — not just your current complaint.</p>
+        </div>
+        <div class="srv-card">
+          <div class="srv-icon">
+            <svg viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v2"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+          </div>
+          <div class="srv-title">Manual Therapy</div>
+          <p class="srv-text">Hands-on treatment to restore mobility, reduce pain, and improve tissue health — tailored to your specific needs.</p>
+        </div>
+        <div class="srv-card">
+          <div class="srv-icon">
+            <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/><path d="M3 19c0-4 2-7 5-8"/></svg>
+          </div>
+          <div class="srv-title">Movement Re-Education</div>
+          <p class="srv-text">Correcting faulty movement patterns that cause pain or inefficiency, and building lasting new habits through guided exercise.</p>
+        </div>
+        <div class="srv-card">
+          <div class="srv-icon">
+            <svg viewBox="0 0 24 24"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M12 2v4"/><path d="M12 18v4"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          </div>
+          <div class="srv-title">Injury Rehabilitation</div>
+          <p class="srv-text">Structured recovery programs following surgery, sports injuries, or accidents — from acute care through return to full activity.</p>
+        </div>
+        <div class="srv-card">
+          <div class="srv-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M12 7c-2.5 0-4 1.5-4 3.5v1h3l1 3h-4v4h8v-4h-4l1-3h3v-1c0-2-1.5-3.5-4-3.5z"/><path d="M9 18c0 1.5.8 3 3 3s3-1.5 3-3"/></svg>
+          </div>
+          <div class="srv-title">Pregnancy &amp; Postnatal Care</div>
+          <p class="srv-text">Specialized treatment for women during and post pregnancy — safe, evidence-based support for every stage of the journey.</p>
+        </div>
+        <div class="srv-card">
+          <div class="srv-icon">
+            <svg viewBox="0 0 24 24"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <div class="srv-title">Performance Optimization</div>
+          <p class="srv-text">For athletes and active individuals seeking to train smarter, prevent injury, and reach their peak potential safely.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHYSIO TEAM -->
+  <section class="team-section">
+    <div class="team-inner">
+      <div class="team-header">
+        <div>
+          <p class="section-eyebrow">Meet the team</p>
+          <h2 class="section-title">Expert care,<br />personal attention</h2>
+        </div>
+        <div class="team-count-badge">4 specialists</div>
+      </div>
+      <div id="fw-physio-specialists-root" class="physio-profiles">
+
+        <!-- LISANNE -->
+        <div class="physio-card">
+          <div class="physio-img-wrap">
+            <div class="physio-img-placeholder">
+              <svg viewBox="0 0 80 80"><circle cx="40" cy="30" r="16"/><path d="M10 72 C10 50 70 50 70 72"/></svg>
+              <span>Insert Photo</span>
+            </div>
+            <div class="physio-img-tint"></div>
+          </div>
+          <div class="physio-body">
+            <div class="physio-name">Lisanne</div>
+            <div class="physio-title">Physiotherapist</div>
+            <p class="physio-bio">Lisanne brings over 6 years of clinical experience to Framework Berlin. She holds a B.Sc. in International Physiotherapy from the Netherlands and has worked in high-performance sports environments and chronic pain clinics.</p>
+            <p class="physio-bio">Her practice is evidence-based and patient-centred — she takes the time to understand your full picture before designing a treatment plan that addresses the root cause, not just the symptoms.</p>
+            <div class="physio-tags">
+              <span class="tag">6+ years experience</span>
+              <span class="tag">B.Sc. International Physio</span>
+              <span class="tag">High-performance sports</span>
+              <span class="tag">Chronic pain</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- JUNI -->
+        <div class="physio-card">
+          <div class="physio-img-wrap">
+            <div class="physio-img-placeholder">
+              <svg viewBox="0 0 80 80"><circle cx="40" cy="30" r="16"/><path d="M10 72 C10 50 70 50 70 72"/></svg>
+              <span>Insert Photo</span>
+            </div>
+            <div class="physio-img-tint"></div>
+          </div>
+          <div class="physio-body">
+            <div class="physio-name">Juni</div>
+            <div class="physio-title">Physiotherapist · Lagree Instructor</div>
+            <p class="physio-bio">Juni is both a qualified physiotherapist and a certified Lagree instructor, giving her an integrated perspective on movement and rehabilitation that few practitioners can offer.</p>
+            <p class="physio-bio">She specializes in treatment during and post pregnancy, guiding clients safely through every stage with evidence-based care and genuine empathy.</p>
+            <div class="physio-tags">
+              <span class="tag">Lagree certified</span>
+              <span class="tag">Prenatal care</span>
+              <span class="tag">Postnatal rehab</span>
+              <span class="tag">Women's health</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MARGOT -->
+        <div class="physio-card">
+          <div class="physio-img-wrap">
+            <div class="physio-img-placeholder">
+              <svg viewBox="0 0 80 80"><circle cx="40" cy="30" r="16"/><path d="M10 72 C10 50 70 50 70 72"/></svg>
+              <span>Insert Photo</span>
+            </div>
+            <div class="physio-img-tint"></div>
+          </div>
+          <div class="physio-body">
+            <div class="physio-name">Margot</div>
+            <div class="physio-title">Lagree Instructor · Level 1 Certified</div>
+            <p class="physio-bio">Half-French, half-Italian and based in Berlin since 2019, Margot brings a distinctly European energy to every class. Her movement background spans multiple disciplines and her teaching style is both precise and encouraging.</p>
+            <p class="physio-bio">You'll find Margot on the reformer on weekend mornings at both studios — the ideal way to start your week.</p>
+            <div class="physio-tags">
+              <span class="tag">Level 1 Lagree</span>
+              <span class="tag">Weekend mornings</span>
+              <span class="tag">Both studios</span>
+              <span class="tag">Berlin since 2019</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CELIA -->
+        <div class="physio-card">
+          <div class="physio-img-wrap">
+            <div class="physio-img-placeholder">
+              <svg viewBox="0 0 80 80"><circle cx="40" cy="30" r="16"/><path d="M10 72 C10 50 70 50 70 72"/></svg>
+              <span>Insert Photo</span>
+            </div>
+            <div class="physio-img-tint"></div>
+          </div>
+          <div class="physio-body">
+            <div class="physio-name">Celia</div>
+            <div class="physio-title">Lagree Instructor · Level 2 Certified</div>
+            <p class="physio-bio">With a background in dance, Celia brings a sharp eye for alignment and body mechanics to everything she teaches. Two years into Lagree, she's built a reputation for classes that challenge without compromising form.</p>
+            <p class="physio-bio">Her focus on functional strength and alignment makes her sessions ideal for clients who want to move well, not just train hard.</p>
+            <div class="physio-tags">
+              <span class="tag">Level 2 Lagree</span>
+              <span class="tag">Dance background</span>
+              <span class="tag">Functional strength</span>
+              <span class="tag">Alignment specialist</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="process-section">
+    <div class="process-inner">
+      <div class="process-label" data-fw="physio.process.label">How it works</div>
+      <h2 class="process-heading" data-fw="physio.process.heading">From first session to full recovery</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-title">Initial Assessment</div>
+          <p class="step-text">Comprehensive evaluation of your history, movement patterns, and goals. We map the full picture before suggesting anything.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-title">Treatment Plan</div>
+          <p class="step-text">A personalized plan targeting the root cause — combining manual therapy, exercise prescription, and lifestyle guidance.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-title">Hands-On Sessions</div>
+          <p class="step-text">Focused 1:1 sessions in our studio, integrating treatment with movement re-education and progressive loading.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <div class="step-title">Ongoing Support</div>
+          <p class="step-text">Regular reassessment and plan adjustments to keep you progressing — all the way to your goal and beyond.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA STRIP -->
+  <section class="cta-strip">
+    <div class="cta-inner">
+      <div class="cta-text">
+        <h2 data-fw="physio.cta.heading">Ready to start?</h2>
+        <p data-fw="physio.cta.sub">Book a consultation with Lisanne or Juni, or join Margot or Celia on the reformer — take the first step towards moving better.</p>
+      </div>
+      <a href="mailto:hello@frameworkberlin.com" class="cta-btn" data-fw="physio.cta.btn_text">Get in touch →</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo"><img src="/brand_assets/Framework_White_Transparent.png" alt="Framework Berlin" /></div>
+          <p class="footer-tagline">Premium Lagree &amp; Physiotherapy Studio in Berlin</p>
+        </div>
+        <div>
+          <div class="f-col-head">Studio</div>
+          <ul class="f-links">
+            <li><a href="index.html#classes">Group Lagree</a></li>
+            <li><a href="index.html#classes">Personal Training</a></li>
+            <li><a href="physiotherapy.html">Physiotherapy</a></li>
+            <li><a href="team.html">Our Team</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="f-col-head">Locations</div>
+          <ul class="f-links">
+            <li><a href="index.html#locations">Prenzlauer Berg</a></li>
+            <li><a href="index.html#locations">Kreuzberg</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="f-col-head">Contact</div>
+          <ul class="f-links">
+            <li><a href="https://classpass.com/" target="_blank" rel="noopener">Book on ClassPass</a></li>
+            <li><a href="mailto:hello@frameworkberlin.com">hello@frameworkberlin.com</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-inner">
+      <div class="footer-bottom"><p>© 2026 Framework Berlin. All rights reserved.</p></div>
+    </div>
+  </footer>
+
+  <script>
+    const burger = document.getElementById('burger');
+    const mobNav = document.getElementById('mob-nav');
+    burger.addEventListener('click', () => mobNav.classList.toggle('open'));
+    mobNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobNav.classList.remove('open')));
+
+    // Scroll-in for team cards
+    (function () {
+      const cards = document.querySelectorAll('.physio-card');
+      if (!cards.length) return;
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          io.unobserve(entry.target);
+          entry.target.classList.add('pc-visible');
+        });
+      }, { threshold: 0.12 });
+      cards.forEach((card, i) => {
+        card.style.transitionDelay = `${i * 90}ms`;
+        io.observe(card);
+      });
+    })();
+  </script>
+  <script src="/framework-berlin/chatbot/chatbot.js" defer></script>
+  <script src="/framework-berlin/website/admin/page-loader.js" defer></script>
+</body>
+</html>
