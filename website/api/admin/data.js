@@ -3,19 +3,53 @@
 // are picked up by Vercel as functions regardless of framework preset).
 //
 // Exposed at /admin/api/data via the rewrite in vercel.json, matching the
-// path admin/page-loader.js and admin/index.html already fetch — this
-// endpoint didn't exist before, so both were silently failing (caught by
-// their own try/catch) and every page was rendering its hardcoded fallback
-// content instead of admin/data.json.
+// path admin/page-loader.js and admin/index.html already fetch.
+//
+// Persistence: Supabase (via its REST API — no @supabase/supabase-js
+// dependency needed, just fetch, so this stays dependency-free) when
+// SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY are set as Vercel env vars.
+// Falls back to the bundled admin/data.json (read-only) when they aren't,
+// so this doesn't hard-break before Supabase is configured.
 const fs = require('fs');
 const path = require('path');
 
-// require()'d (not read via a runtime fs path) so Vercel's build-time file
-// tracer actually bundles data.json with the function — a plain
-// fs.readFileSync(process.cwd() + ...) was silently excluded and 500'd with
-// ENOENT in production even though it worked locally.
 const bundledData = require('../../admin/data.json');
 const DATA_PATH = path.join(__dirname, '../../admin/data.json');
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const CLIENT_ID = 'framework-berlin';
+const TABLE = 'website_data';
+
+const supabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_KEY);
+
+async function supabaseGet() {
+  const url = `${SUPABASE_URL}/rest/v1/${TABLE}?client_id=eq.${CLIENT_ID}&select=data`;
+  const res = await fetch(url, {
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+  });
+  if (!res.ok) throw new Error(`Supabase GET failed (HTTP ${res.status})`);
+  const rows = await res.json();
+  if (!rows.length) return null;
+  return rows[0].data;
+}
+
+async function supabaseUpsert(data) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}`, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'resolution=merge-duplicates',
+    },
+    body: JSON.stringify({ client_id: CLIENT_ID, data, updated_at: new Date().toISOString() }),
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => '');
+    throw new Error(`Supabase upsert failed (HTTP ${res.status}): ${detail}`);
+  }
+}
 
 module.exports = async (req, res) => {
   // The AFA kundenzugang admin (afa-ai.com) calls this endpoint cross-origin,
@@ -31,10 +65,20 @@ module.exports = async (req, res) => {
   }
 
   if (req.method === 'GET') {
+    if (supabaseConfigured) {
+      try {
+        const data = await supabaseGet();
+        if (data) {
+          res.status(200).json(data);
+          return;
+        }
+        // No row yet — first run. Fall through to the bundled seed data below.
+      } catch (err) {
+        res.status(200).json({ ...bundledData, _supabaseError: String(err) });
+        return;
+      }
+    }
     try {
-      // Prefer the on-disk copy (reflects local edits during `next dev`);
-      // fall back to the bundled require() if the filesystem read fails,
-      // e.g. in production where only the bundled copy is guaranteed present.
       const raw = fs.readFileSync(DATA_PATH, 'utf-8');
       res.setHeader('Content-Type', 'application/json');
       res.status(200).send(raw);
@@ -45,17 +89,26 @@ module.exports = async (req, res) => {
   }
 
   if (req.method === 'POST') {
+    if (supabaseConfigured) {
+      try {
+        await supabaseUpsert(req.body);
+        res.status(200).json({ ok: true });
+      } catch (err) {
+        res.status(500).json({ ok: false, error: 'Supabase write failed', detail: String(err) });
+      }
+      return;
+    }
     try {
       fs.writeFileSync(DATA_PATH, JSON.stringify(req.body, null, 2), 'utf-8');
       res.status(200).json({ ok: true });
     } catch (err) {
       // Vercel serverless functions have a read-only filesystem in
-      // production — writes here only ever work in local `next dev`/`vercel dev`.
-      // Real persistence needs a database, not a JSON file on disk.
+      // production — writes here only work in local `next dev`/`vercel dev`
+      // until SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are set.
       res.status(500).json({
         ok: false,
         error:
-          'Write failed — Vercel serverless functions cannot write to the deployment filesystem in production. This endpoint needs a real datastore (e.g. a database) to persist changes; a JSON file on disk only works in local development.',
+          'Write failed — no SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY configured, and Vercel serverless functions cannot write to the deployment filesystem in production.',
         detail: String(err),
       });
     }
