@@ -18,6 +18,18 @@ const bundledData = require('../../admin/data.json');
 const DATA_PATH = path.join(__dirname, '../../admin/data.json');
 
 module.exports = async (req, res) => {
+  // The AFA kundenzugang admin (afa-ai.com) calls this endpoint cross-origin,
+  // so it needs explicit CORS — without this the browser blocks the request
+  // before it even reaches this function.
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
+
   if (req.method === 'GET') {
     try {
       // Prefer the on-disk copy (reflects local edits during `next dev`);
