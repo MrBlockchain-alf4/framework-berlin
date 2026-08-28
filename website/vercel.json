@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/admin/api/data", "destination": "/api/admin/data" }
+  ]
+}
