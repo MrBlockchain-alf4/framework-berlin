@@ -1666,7 +1666,13 @@
 
     // ── COUNT-UP ANIMATION ───────────────────────────────────────
     (function () {
-      const countEls = document.querySelectorAll('[data-count]');
+      // Elements with data-fw are admin-editable — the count-up loop below
+      // captures its target once when the animation starts and keeps
+      // overwriting textContent from that stale value for its full 2.2s
+      // run, silently reverting any admin edit that lands mid-animation.
+      // Skipping them entirely means the two features don't fight; the
+      // number just renders immediately instead of counting up.
+      const countEls = document.querySelectorAll('[data-count]:not([data-fw])');
       if (!countEls.length) return;
       const cio = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
