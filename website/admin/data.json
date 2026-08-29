@@ -11,19 +11,50 @@
   "home": {
     "hero": {
       "image": null,
+      "eyebrow": "Lagree · Megaformer · Berlin",
       "headline": "High-Intensity.\nLow-Impact.\nAll Results.",
       "sub": "Transform your body with Berlin's premier Lagree training — science-backed, results-driven.",
       "cta_text": "Book Your First Class"
     },
+    "stats": [
+      { "value": "2", "label": "Studio Locations" },
+      { "value": "50 min", "label": "Full-Body Sessions" },
+      { "value": "32+", "label": "Team Members" },
+      { "value": "24h", "label": "Afterburn Effect" }
+    ],
     "services": [
       { "title": "Group Lagree", "desc": "High-intensity, low-impact full-body workouts on the Megaformer™. Perfect for building lean muscle, core strength, and endurance alongside a motivated community." },
       { "title": "Personal Training", "desc": "One-on-one sessions tailored precisely to your fitness level and personal goals. Expert coaching for accelerated, lasting results on your schedule." },
       { "title": "Physiotherapy", "desc": "Active physiotherapy for injury recovery and movement optimization. Qualified professionals provide personalized care to keep you moving freely and pain-free." }
     ],
+    "classes": {
+      "eyebrow": "What We Offer",
+      "heading": "Our Classes"
+    },
     "about": {
+      "eyebrow": "The Lagree Method",
       "heading": "What is\nFramework?",
       "body_1": "Framework is a boutique fitness studio offering a unique blend of Lagree™ training and active physiotherapy. Lagree is a highly intensive full-body muscle endurance workout performed on the Megaformer™ — a revolutionary machine designed to challenge every muscle group simultaneously.",
-      "body_2": "The method focuses on slow-twitch muscle fibers, building lean muscle mass and core strength while staying low-impact on your joints. You'll feel the burn during — and for up to 24 hours after — every session."
+      "body_2": "The method focuses on slow-twitch muscle fibers, building lean muscle mass and core strength while staying low-impact on your joints. You'll feel the burn during — and for up to 24 hours after — every session.",
+      "image": null,
+      "stats": [
+        { "value": "2", "label": "Berlin Studios" },
+        { "value": "32+", "label": "Expert Trainers" }
+      ],
+      "chips": ["Megaformer™", "Low Impact", "Science-backed", "Berlin"]
+    },
+    "locations_section": {
+      "eyebrow": "Where to Find Us",
+      "heading": "Our Studios"
+    },
+    "testimonials_section": {
+      "eyebrow": "Community",
+      "heading": "What Our Members Say"
+    },
+    "pricing_section": {
+      "eyebrow": "Credit Packs",
+      "heading": "Membership Options",
+      "sub": "Same pricing at both Berlin studio locations. Credits valid at P-Berg & Kreuzberg."
     },
     "pricing": [
       { "credits": "2 Credits", "name": "First Timer", "amount": "€35", "note": "€17.50 per class", "popular": false },

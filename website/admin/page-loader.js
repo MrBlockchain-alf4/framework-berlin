@@ -27,6 +27,18 @@
       }
     });
 
+    /* ── stat count-up sync ───────────────────────────────────
+       .stat-num elements have a separate count-up animation that reads
+       data-count/data-suffix on scroll-into-view (see the IntersectionObserver
+       below) and overwrites textContent from those attributes, not from
+       what was just set above — without this, an admin-edited stat value
+       would get silently reverted back to the old number the moment the
+       visitor scrolls to it. Re-derive both attributes from the new text. */
+    document.querySelectorAll('.stat-num[data-fw]').forEach(el => {
+      const m = el.textContent.match(/^(\d+)(.*)$/);
+      if (m) { el.setAttribute('data-count', m[1]); el.setAttribute('data-suffix', m[2]); }
+    });
+
     /* ── hero image focal point + zoom (admin-set, optional) ─── */
     const heroBg = document.getElementById('hero-bg');
     if (heroBg && D.home && D.home.hero && D.home.hero.image_position) {
