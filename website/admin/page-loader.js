@@ -27,6 +27,17 @@
       }
     });
 
+    /* ── hero image focal point + zoom (admin-set, optional) ─── */
+    const heroBg = document.getElementById('hero-bg');
+    if (heroBg && D.home && D.home.hero && D.home.hero.image_position) {
+      const pos = D.home.hero.image_position;
+      const x = typeof pos.x === 'number' ? pos.x : 50;
+      const y = typeof pos.y === 'number' ? pos.y : 50;
+      const scale = typeof pos.scale === 'number' ? pos.scale : 100;
+      heroBg.style.backgroundPosition = `${x}% ${y}%`;
+      heroBg.style.backgroundSize = `${scale}%`;
+    }
+
     /* ── booking URL on all Book Now links ───────────────────── */
     if (D.site && D.site.booking_url) {
       document.querySelectorAll('a.nav-cta, a.mob-cta, a.loc-btn, a.hero-cta[href*="classpass"]').forEach(a => {
@@ -62,7 +73,7 @@
     const locRoot = document.getElementById('fw-locations-root');
     if (locRoot && D.home && D.home.locations) {
       locRoot.innerHTML = D.home.locations.map((loc, i) => `
-        <div class="loc-card ao d${i + 1}">
+        <div class="loc-card ao d${i + 1}" data-fw-section="contact">
           <div class="loc-img-wrap">
             <div class="loc-img-placeholder">
               <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="40" cy="30" r="16"/><path d="M10 72 C10 50 70 50 70 72"/></svg>
@@ -90,7 +101,7 @@
     if (carTrack && carDots && D.home && D.home.testimonials) {
       const quotes = `<svg viewBox="0 0 40 32" fill="currentColor"><path d="M0 32V20.5C0 9.167 4.333 2.167 13 0l2 3.5C10.333 5.167 8.167 8.333 7.5 13H14V32H0Zm22 0V20.5C22 9.167 26.333 2.167 35 0l2 3.5C32.333 5.167 30.167 8.333 29.5 13H36V32H22Z"/></svg>`;
       carTrack.innerHTML = D.home.testimonials.map(t => `
-        <div class="slide">
+        <div class="slide" data-fw-section="testimonials">
           <div class="slide-inner">
             <div class="t-quote-mark">${quotes}</div>
             <div class="t-stars">★★★★★</div>
@@ -183,10 +194,58 @@
     'http://localhost:3000',
     'http://localhost:3001',
   ];
+  let highlighted = [];
+  function applyHighlight(paths, section) {
+    highlighted.forEach(el => el.classList.remove('fw-admin-hl'));
+    highlighted = [];
+    let targets = [];
+    if (paths && paths.length) {
+      targets = paths
+        .map(p => document.querySelector(`[data-fw="${p}"]`))
+        .filter(Boolean);
+    } else if (section) {
+      targets = Array.from(document.querySelectorAll(`[data-fw-section="${section}"]`));
+    }
+    targets.forEach(el => el.classList.add('fw-admin-hl'));
+    highlighted = targets;
+    if (targets[0]) targets[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
   window.addEventListener('message', function (event) {
     if (ADMIN_ORIGINS.indexOf(event.origin) === -1) return;
     const msg = event.data;
-    if (!msg || msg.type !== 'FW_ADMIN_PREVIEW' || !msg.data) return;
-    try { applyData(msg.data); } catch (_) { /* ignore malformed preview payloads */ }
+    if (!msg || !msg.type) return;
+    if (msg.type === 'FW_ADMIN_PREVIEW' && msg.data) {
+      try { applyData(msg.data); } catch (_) { /* ignore malformed preview payloads */ }
+    } else if (msg.type === 'FW_ADMIN_HIGHLIGHT') {
+      applyHighlight(msg.paths || null, msg.section || null);
+    }
   });
+
+  /* ── click-to-edit — only active when actually embedded in the admin
+     panel (never for a normal visitor loading the page directly), and only
+     ever posts a field path string back — no data leaves the page, nothing
+     is written anywhere from here. ──────────────────────────────────────── */
+  if (window.self !== window.top) {
+    const hlStyle = document.createElement('style');
+    hlStyle.textContent = '.fw-admin-hl{outline:2px solid #00D4FF !important;outline-offset:2px;border-radius:2px;}';
+    document.head.appendChild(hlStyle);
+
+    document.addEventListener('click', function (e) {
+      const fwEl = e.target.closest('[data-fw]');
+      const sectionEl = e.target.closest('[data-fw-section]');
+      const el = fwEl || sectionEl;
+      if (!el) return;
+      e.preventDefault();
+      e.stopPropagation();
+      window.parent.postMessage(
+        {
+          type: 'FW_ADMIN_SELECT',
+          path: fwEl ? fwEl.getAttribute('data-fw') : null,
+          section: sectionEl ? sectionEl.getAttribute('data-fw-section') : null,
+        },
+        '*',
+      );
+    }, true);
+  }
 })();
