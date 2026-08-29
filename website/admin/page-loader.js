@@ -1,8 +1,8 @@
-(async function () {
-  try {
-    const res = await fetch('/admin/api/data');
-    if (!res.ok) return;
-    const D = await res.json();
+(function () {
+  /* ── shared patch logic — used for both the initial GET and any live
+     postMessage update from the kundenzugang admin panel ─────────────── */
+  function applyData(D) {
+    if (!D) return;
 
     /* ── accent color ────────────────────────────────────────── */
     if (D.site && D.site.accent) {
@@ -161,6 +161,32 @@
       }, { threshold: 0.1 });
       specRoot.querySelectorAll('.physio-card').forEach(c => pio.observe(c));
     }
+  }
 
-  } catch (_) { /* silent — page renders fine with hardcoded content */ }
+  /* ── initial load: fetch real data and patch ──────────────────────── */
+  (async function () {
+    try {
+      const res = await fetch('/admin/api/data');
+      if (!res.ok) return;
+      const D = await res.json();
+      applyData(D);
+    } catch (_) { /* silent — page renders fine with hardcoded content */ }
+  })();
+
+  /* ── live preview: patch instantly from postMessage while editing in
+     the kundenzugang admin panel — this is a preview-only page, never
+     writes anything; Supabase is only ever touched by /admin/api/data
+     via the admin's explicit Save action ───────────────────────────── */
+  const ADMIN_ORIGINS = [
+    'https://www.afa-ai.com',
+    'https://afa-ai.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+  ];
+  window.addEventListener('message', function (event) {
+    if (ADMIN_ORIGINS.indexOf(event.origin) === -1) return;
+    const msg = event.data;
+    if (!msg || msg.type !== 'FW_ADMIN_PREVIEW' || !msg.data) return;
+    try { applyData(msg.data); } catch (_) { /* ignore malformed preview payloads */ }
+  });
 })();
