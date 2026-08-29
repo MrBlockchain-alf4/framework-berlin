@@ -232,16 +232,27 @@
     document.head.appendChild(hlStyle);
 
     document.addEventListener('click', function (e) {
+      // data-fw-click marks elements that should be selectable but must
+      // never be content-patched by applyData() (e.g. the hero overlay
+      // sitting on top of #hero-bg — it needs to be clickable for the
+      // image field, but must never receive the image itself as its
+      // background or innerHTML, which is why this is a separate
+      // attribute from data-fw rather than reusing it).
       const fwEl = e.target.closest('[data-fw]');
+      const fwClickEl = !fwEl ? e.target.closest('[data-fw-click]') : null;
       const sectionEl = e.target.closest('[data-fw-section]');
-      const el = fwEl || sectionEl;
-      if (!el) return;
+      const path = fwEl
+        ? fwEl.getAttribute('data-fw')
+        : fwClickEl
+          ? fwClickEl.getAttribute('data-fw-click')
+          : null;
+      if (!path && !sectionEl) return;
       e.preventDefault();
       e.stopPropagation();
       window.parent.postMessage(
         {
           type: 'FW_ADMIN_SELECT',
-          path: fwEl ? fwEl.getAttribute('data-fw') : null,
+          path: path,
           section: sectionEl ? sectionEl.getAttribute('data-fw-section') : null,
         },
         '*',
