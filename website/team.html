@@ -341,11 +341,11 @@
   <div class="page-header">
     <div class="page-header-inner">
       <div>
-        <p class="page-eyebrow">Teacher-owned studio · Berlin</p>
-        <h1 class="page-title">The<br>Team</h1>
+        <p class="page-eyebrow" data-fw="team.header.eyebrow">Teacher-owned studio · Berlin</p>
+        <h1 class="page-title" data-fw="team.header.title">The<br>Team</h1>
       </div>
       <div class="page-header-right">
-        <p class="page-desc">A collective of Lagree-certified instructors, physiotherapists, and movement specialists — here to push you, guide you, and celebrate every shake.</p>
+        <p class="page-desc" data-fw="team.header.desc">A collective of Lagree-certified instructors, physiotherapists, and movement specialists — here to push you, guide you, and celebrate every shake.</p>
       </div>
     </div>
   </div>
@@ -366,9 +366,9 @@
   <section class="philosophy">
     <div class="philosophy-inner">
       <div>
-        <h2>Teacher-owned.<br>Movement-first.</h2>
-        <p>Framework Berlin was founded by teachers who believe the best fitness experience comes from instructors who practice what they teach. Every member of our team is trained to the highest standard in the Lagree method.</p>
-        <p>We are a community of movement specialists dedicated to helping you achieve real, lasting results — safely, efficiently, and with care.</p>
+        <h2 data-fw="team.philosophy.heading">Teacher-owned.<br>Movement-first.</h2>
+        <p data-fw="team.philosophy.body_1">Framework Berlin was founded by teachers who believe the best fitness experience comes from instructors who practice what they teach. Every member of our team is trained to the highest standard in the Lagree method.</p>
+        <p data-fw="team.philosophy.body_2">We are a community of movement specialists dedicated to helping you achieve real, lasting results — safely, efficiently, and with care.</p>
       </div>
       <div class="philosophy-stats">
         <div class="phil-stat"><div class="phil-stat-num">32+</div><div class="phil-stat-label">Team members</div></div>
@@ -643,7 +643,7 @@
     ];
 
     // ── RENDER CARDS ──────────────────────────────────────────────────────────
-    function buildCard(m) {
+    function buildCard(m, i) {
       const hasBio = m.love !== null;
       const openBtn = hasBio
         ? `<button class="tm-open-btn" aria-label="Read ${m.name}'s bio">+</button>`
@@ -674,21 +674,25 @@
           </div>
         </div>` : '';
 
-      return `<div class="tm-card" style="grid-row:span ${m.span}" data-d="${m.d}">
-        <div class="tm-img-wrap">
-          <div class="tm-img-placeholder">
+      const img = m.img
+        ? `<img class="tm-img" data-fw="team.members.${i}.img" src="${m.img}" alt="${m.name}">`
+        : `<div class="tm-img-placeholder" data-fw-click="team.members.${i}.img">
             <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <circle cx="40" cy="30" r="16"/>
               <path d="M10 72 C10 50 70 50 70 72"/>
             </svg>
             <span>Insert Photo</span>
-          </div>
+          </div>`;
+
+      return `<div class="tm-card" style="grid-row:span ${m.span}" data-d="${m.d}" data-fw-section="team">
+        <div class="tm-img-wrap">
+          ${img}
           <div class="tm-overlay"></div>
         </div>
         <div class="tm-info">
           <div class="tm-info-text">
-            <div class="tm-name">${m.name}</div>
-            <div class="tm-role">${m.role}</div>
+            <div class="tm-name" data-fw="team.members.${i}.name">${m.name}</div>
+            <div class="tm-role" data-fw="team.members.${i}.role">${m.role}</div>
           </div>
           ${openBtn}
         </div>
@@ -699,7 +703,7 @@
     window._fw_renderTeam = function(members) {
       const grid = document.getElementById('team-grid');
       if (!grid) return;
-      grid.innerHTML = members.map(buildCard).join('');
+      grid.innerHTML = members.map((m, i) => buildCard(m, i)).join('');
       const cards = document.querySelectorAll('.tm-card');
       cards.forEach(c => c.style.setProperty('--d', c.dataset.d || '0'));
       const io = new IntersectionObserver(entries => {

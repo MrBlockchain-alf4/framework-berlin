@@ -140,6 +140,16 @@
       if (window._fw_renderTeam) window._fw_renderTeam(D.team.members);
     }
 
+    /* ── PHYSIO: hero image (static placeholder, no JS rebuild) ─ */
+    const physioHeroImg = document.getElementById('physio-hero-img');
+    const physioHeroPlaceholder = document.querySelector('.physio-hero-placeholder');
+    if (physioHeroImg && D.physio && D.physio.hero) {
+      const img = D.physio.hero.image;
+      physioHeroImg.style.display = img ? 'block' : 'none';
+      if (img) physioHeroImg.src = img;
+      if (physioHeroPlaceholder) physioHeroPlaceholder.style.display = img ? 'none' : '';
+    }
+
     /* ── PHYSIO: services ────────────────────────────────────── */
     const srvRoot = document.getElementById('fw-services-root');
     if (srvRoot && D.physio && D.physio.services) {
@@ -151,32 +161,34 @@
         prenatal:  `<circle cx="12" cy="5" r="2"/><path d="M12 7c-2.5 0-4 1.5-4 3.5v1h3l1 3h-4v4h8v-4h-4l1-3h3v-1c0-2-1.5-3.5-4-3.5z"/><path d="M9 18c0 1.5.8 3 3 3s3-1.5 3-3"/>`,
         bolt:      `<polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>`
       };
-      srvRoot.innerHTML = D.physio.services.map(s => `
-        <div class="srv-card">
+      srvRoot.innerHTML = D.physio.services.map((s, i) => `
+        <div class="srv-card" data-fw-section="physio.services">
           <div class="srv-icon"><svg viewBox="0 0 24 24">${icons[s.icon] || icons.bolt}</svg></div>
-          <div class="srv-title">${s.title}</div>
-          <p class="srv-text">${s.text}</p>
+          <div class="srv-title" data-fw="physio.services.${i}.title">${s.title}</div>
+          <p class="srv-text" data-fw="physio.services.${i}.text">${s.text}</p>
         </div>`).join('');
     }
 
     /* ── PHYSIO: specialists ─────────────────────────────────── */
     const specRoot = document.getElementById('fw-physio-specialists-root');
     if (specRoot && D.physio && D.physio.specialists) {
-      specRoot.innerHTML = D.physio.specialists.map(sp => `
-        <div class="physio-card">
+      specRoot.innerHTML = D.physio.specialists.map((sp, i) => `
+        <div class="physio-card" data-fw-section="physio.specialists">
           <div class="physio-img-wrap">
-            <div class="physio-img-placeholder">
-              <svg viewBox="0 0 80 80" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="30" r="16"/><path d="M10 72 C10 50 70 50 70 72"/></svg>
-              <span>Insert Photo</span>
-            </div>
+            ${sp.img
+              ? `<img class="physio-img" data-fw="physio.specialists.${i}.img" src="${sp.img}" alt="${sp.name}">`
+              : `<div class="physio-img-placeholder" data-fw-click="physio.specialists.${i}.img">
+                  <svg viewBox="0 0 80 80" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="30" r="16"/><path d="M10 72 C10 50 70 50 70 72"/></svg>
+                  <span>Insert Photo</span>
+                </div>`}
             <div class="physio-img-tint"></div>
           </div>
           <div class="physio-body">
-            <div class="physio-name">${sp.name}</div>
-            <div class="physio-title">${sp.title}</div>
-            ${sp.bio.map(b => `<p class="physio-bio">${b}</p>`).join('')}
+            <div class="physio-name" data-fw="physio.specialists.${i}.name">${sp.name}</div>
+            <div class="physio-title" data-fw="physio.specialists.${i}.title">${sp.title}</div>
+            ${sp.bio.map((b, bi) => `<p class="physio-bio" data-fw="physio.specialists.${i}.bio.${bi}">${b}</p>`).join('')}
             <div class="physio-tags">
-              ${sp.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+              ${sp.tags.map((t, ti) => `<span class="tag" data-fw="physio.specialists.${i}.tags.${ti}">${t}</span>`).join('')}
             </div>
           </div>
         </div>`).join('');
