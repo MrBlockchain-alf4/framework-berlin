@@ -50,10 +50,42 @@
       heroBg.style.backgroundSize = `${scale}%`;
     }
 
+    /* ── hero/about "Insert Photo" placeholder toggle ─────────── */
+    // hero-bg and about-img-wrap both get their background-image set
+    // correctly by the generic [data-fw] loop above, but each has a static
+    // "Insert Photo" child that was never actually hidden once a real
+    // image exists — for About (opaque background) that fully hid the
+    // photo underneath, exactly the dead-placeholder bug already fixed for
+    // locations/team/physio.
+    if (heroBg) {
+      const heroPlaceholder = heroBg.querySelector('.hero-placeholder');
+      if (heroPlaceholder) heroPlaceholder.style.display = D.home?.hero?.image ? 'none' : '';
+    }
+    const aboutImgWrap = document.querySelector('.about-img-wrap');
+    if (aboutImgWrap) {
+      const aboutPlaceholder = aboutImgWrap.querySelector('.about-img-placeholder');
+      if (aboutPlaceholder) aboutPlaceholder.style.display = D.home?.about?.image ? 'none' : '';
+    }
+
     /* ── booking URL on all Book Now links ───────────────────── */
     if (D.site && D.site.booking_url) {
       document.querySelectorAll('a.nav-cta, a.mob-cta, a.loc-btn, a.hero-cta[href*="classpass"]').forEach(a => {
         if (a.href.includes('classpass') || a.href.includes('booking')) a.href = D.site.booking_url;
+      });
+    }
+
+    /* ── HOME: class card image toggle (Our Classes) ──────────── */
+    // The <img data-fw="home.services.N.image"> tags already get their src
+    // set by the generic [data-fw] loop above; this just swaps visibility
+    // with the static placeholder once a photo actually exists.
+    if (D.home && Array.isArray(D.home.services)) {
+      D.home.services.forEach((s, i) => {
+        const img = document.getElementById('class-img-' + i);
+        if (!img) return;
+        const wrap = img.closest('.class-img-wrap');
+        const placeholder = wrap ? wrap.querySelector('.class-img-placeholder') : null;
+        img.style.display = s.image ? 'block' : 'none';
+        if (placeholder) placeholder.style.display = s.image ? 'none' : '';
       });
     }
 
@@ -73,7 +105,7 @@
             <li>Valid 6 months</li>
             <li>Both studio locations</li>
           </ul>
-          <a href="${(D.site && D.site.booking_url) || '#'}" class="price-btn" target="_blank" rel="noopener">Book Now</a>
+          <a href="${(D.site && D.site.booking_url) || '#'}" class="price-btn" target="_blank" rel="noopener" data-fw="home.pricing_section.btn_text">${(D.home.pricing_section && D.home.pricing_section.btn_text) || 'Book Now'}</a>
         </div>`).join('');
       /* re-observe new elements for scroll animation */
       if (window._fw_io) {
