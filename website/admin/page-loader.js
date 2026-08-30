@@ -258,9 +258,10 @@
     highlighted = [];
     let targets = [];
     if (paths && paths.length) {
-      targets = paths
-        .map(p => document.querySelector(`[data-fw="${p}"]`))
-        .filter(Boolean);
+      // A path can legitimately appear on more than one element (e.g. the
+      // logo, present in both the navbar and the footer) — highlight every
+      // instance, not just the first one found.
+      targets = paths.flatMap(p => Array.from(document.querySelectorAll(`[data-fw="${p}"]`)));
     } else if (section) {
       targets = Array.from(document.querySelectorAll(`[data-fw-section="${section}"]`));
     }
