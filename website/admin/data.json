@@ -3,9 +3,14 @@
   "_updated": "2026-08-17",
 
   "site": {
-    "logo": "/brand_assets/Framework_White_Transparent.png",
+    "logo": "/public/images/Framework_White_Transparent.png",
     "accent": "#1a3a2a",
-    "booking_url": "https://classpass.com/"
+    "booking_url": "https://classpass.com/",
+    "pages": [
+      { "id": "home", "label": "Home", "path": "" },
+      { "id": "team", "label": "Team", "path": "team.html" },
+      { "id": "physio", "label": "PT & Physiotherapy", "path": "physiotherapy.html" }
+    ]
   },
 
   "home": {
