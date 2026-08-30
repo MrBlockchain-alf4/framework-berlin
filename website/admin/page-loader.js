@@ -61,13 +61,13 @@
     const pricingRoot = document.getElementById('fw-pricing-root');
     if (pricingRoot && D.home && D.home.pricing) {
       pricingRoot.innerHTML = D.home.pricing.map((p, i) => `
-        <div class="price-card ao d${i + 1}${p.popular ? ' popular' : ''}">
+        <div class="price-card ao d${i + 1}${p.popular ? ' popular' : ''}" data-fw-section="pricing">
           ${p.popular ? '<div class="popular-badge">Most Popular</div>' : ''}
-          <div class="price-credits">${p.credits}</div>
-          <div class="price-tier">${p.name}</div>
-          <div class="price-amount">${p.amount}</div>
+          <div class="price-credits" data-fw="home.pricing.${i}.credits">${p.credits}</div>
+          <div class="price-tier" data-fw="home.pricing.${i}.name">${p.name}</div>
+          <div class="price-amount" data-fw="home.pricing.${i}.amount">${p.amount}</div>
           <div class="price-unit">total</div>
-          <div class="price-note">${p.note}</div>
+          <div class="price-note" data-fw="home.pricing.${i}.note">${p.note}</div>
           <div class="price-divider"></div>
           <ul class="price-features">
             <li>Valid 6 months</li>
@@ -87,18 +87,20 @@
       locRoot.innerHTML = D.home.locations.map((loc, i) => `
         <div class="loc-card ao d${i + 1}" data-fw-section="contact">
           <div class="loc-img-wrap">
-            <div class="loc-img-placeholder">
-              <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="40" cy="30" r="16"/><path d="M10 72 C10 50 70 50 70 72"/></svg>
-              <span>Insert Photo</span>
-            </div>
+            ${loc.image
+              ? `<img class="loc-img" data-fw="home.locations.${i}.image" src="${loc.image}" style="object-position:${loc.img_position || 'center'}" alt="${loc.name}">`
+              : `<div class="loc-img-placeholder" data-fw-click="home.locations.${i}.image">
+                  <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="40" cy="30" r="16"/><path d="M10 72 C10 50 70 50 70 72"/></svg>
+                  <span>Insert Photo</span>
+                </div>`}
             <div class="loc-img-overlay">
-              <p class="loc-neighborhood">${loc.neighborhood}</p>
-              <h3 class="loc-name">${loc.name}</h3>
+              <p class="loc-neighborhood" data-fw="home.locations.${i}.neighborhood">${loc.neighborhood}</p>
+              <h3 class="loc-name" data-fw="home.locations.${i}.name">${loc.name}</h3>
             </div>
           </div>
           <div class="loc-body">
-            <p class="loc-address">${loc.address}</p>
-            <p class="loc-hours">${loc.hours}</p>
+            <p class="loc-address" data-fw="home.locations.${i}.address">${loc.address}</p>
+            <p class="loc-hours" data-fw="home.locations.${i}.hours">${loc.hours}</p>
             <a href="${(D.site && D.site.booking_url) || '#'}" class="loc-btn" target="_blank" rel="noopener">Book on ClassPass →</a>
           </div>
         </div>`).join('');
