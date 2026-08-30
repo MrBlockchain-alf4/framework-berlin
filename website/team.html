@@ -643,6 +643,12 @@
     ];
 
     // ── RENDER CARDS ──────────────────────────────────────────────────────────
+    function teamFocalPointStyleStr(pos) {
+      const x = pos && typeof pos.x === 'number' ? pos.x : 50;
+      const y = pos && typeof pos.y === 'number' ? pos.y : 50;
+      const scale = pos && typeof pos.scale === 'number' ? pos.scale : 100;
+      return `object-position:${x}% ${y}%;${scale !== 100 ? `transform:scale(${scale / 100});` : ''}`;
+    }
     function buildCard(m, i) {
       const hasBio = m.love !== null;
       const openBtn = hasBio
@@ -675,7 +681,7 @@
         </div>` : '';
 
       const img = m.img
-        ? `<img class="tm-img" data-fw="team.members.${i}.img" src="${m.img}" alt="${m.name}">`
+        ? `<img class="tm-img" data-fw="team.members.${i}.img" src="${m.img}" style="${teamFocalPointStyleStr(m.img_position)}" alt="${m.name}">`
         : `<div class="tm-img-placeholder" data-fw-click="team.members.${i}.img">
             <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <circle cx="40" cy="30" r="16"/>

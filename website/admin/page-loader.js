@@ -39,16 +39,49 @@
       if (m) { el.setAttribute('data-count', m[1]); el.setAttribute('data-suffix', m[2]); }
     });
 
-    /* ── hero image focal point + zoom (admin-set, optional) ─── */
-    const heroBg = document.getElementById('hero-bg');
-    if (heroBg && D.home && D.home.hero && D.home.hero.image_position) {
-      const pos = D.home.hero.image_position;
+    /* ── image focal point + zoom helpers (admin-set, optional) ─
+       Every photo field on the site carries an {x,y,scale} alongside it —
+       x/y is a focal point (CSS background-position / object-position),
+       scale is a zoom level. Applied on top of the container's own
+       responsive sizing (object-fit/background-size:cover already fills
+       it), so this only changes framing, never breaks layout at any
+       screen size. Two variants because some fields are background-image
+       divs (hero, about) and the rest are real <img> tags. */
+    function applyBgFocalPoint(el, pos) {
+      if (!el || !pos) return;
       const x = typeof pos.x === 'number' ? pos.x : 50;
       const y = typeof pos.y === 'number' ? pos.y : 50;
       const scale = typeof pos.scale === 'number' ? pos.scale : 100;
-      heroBg.style.backgroundPosition = `${x}% ${y}%`;
-      heroBg.style.backgroundSize = `${scale}%`;
+      el.style.backgroundPosition = `${x}% ${y}%`;
+      el.style.backgroundSize = `${scale}%`;
     }
+    function applyImgFocalPoint(el, pos) {
+      if (!el || !pos) return;
+      const x = typeof pos.x === 'number' ? pos.x : 50;
+      const y = typeof pos.y === 'number' ? pos.y : 50;
+      const scale = typeof pos.scale === 'number' ? pos.scale : 100;
+      el.style.objectPosition = `${x}% ${y}%`;
+      el.style.transform = scale !== 100 ? `scale(${scale / 100})` : '';
+    }
+    window._fwApplyImgFocalPoint = applyImgFocalPoint;
+    // String-building twin of applyImgFocalPoint, for <img> tags built as
+    // template-string HTML (locations/specialists get fully rebuilt on
+    // every applyData() call, so their focal point has to be baked into
+    // the markup itself rather than patched afterward).
+    function focalPointStyleStr(pos) {
+      if (!pos) return '';
+      const x = typeof pos.x === 'number' ? pos.x : 50;
+      const y = typeof pos.y === 'number' ? pos.y : 50;
+      const scale = typeof pos.scale === 'number' ? pos.scale : 100;
+      return `object-position:${x}% ${y}%;${scale !== 100 ? `transform:scale(${scale / 100});` : ''}`;
+    }
+    window._fwFocalPointStyleStr = focalPointStyleStr;
+
+    const heroBg = document.getElementById('hero-bg');
+    applyBgFocalPoint(heroBg, D.home?.hero?.image_position);
+
+    const aboutImgWrap = document.querySelector('.about-img-wrap');
+    applyBgFocalPoint(aboutImgWrap, D.home?.about?.image_position);
 
     /* ── hero/about "Insert Photo" placeholder toggle ─────────── */
     // hero-bg and about-img-wrap both get their background-image set
@@ -61,7 +94,6 @@
       const heroPlaceholder = heroBg.querySelector('.hero-placeholder');
       if (heroPlaceholder) heroPlaceholder.style.display = D.home?.hero?.image ? 'none' : '';
     }
-    const aboutImgWrap = document.querySelector('.about-img-wrap');
     if (aboutImgWrap) {
       const aboutPlaceholder = aboutImgWrap.querySelector('.about-img-placeholder');
       if (aboutPlaceholder) aboutPlaceholder.style.display = D.home?.about?.image ? 'none' : '';
@@ -86,6 +118,7 @@
         const placeholder = wrap ? wrap.querySelector('.class-img-placeholder') : null;
         img.style.display = s.image ? 'block' : 'none';
         if (placeholder) placeholder.style.display = s.image ? 'none' : '';
+        applyImgFocalPoint(img, s.image_position);
       });
     }
 
@@ -120,7 +153,7 @@
         <div class="loc-card ao d${i + 1}" data-fw-section="contact">
           <div class="loc-img-wrap">
             ${loc.image
-              ? `<img class="loc-img" data-fw="home.locations.${i}.image" src="${loc.image}" style="object-position:${loc.img_position || 'center'}" alt="${loc.name}">`
+              ? `<img class="loc-img" data-fw="home.locations.${i}.image" src="${loc.image}" style="${focalPointStyleStr(loc.image_position)}" alt="${loc.name}">`
               : `<div class="loc-img-placeholder" data-fw-click="home.locations.${i}.image">
                   <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="40" cy="30" r="16"/><path d="M10 72 C10 50 70 50 70 72"/></svg>
                   <span>Insert Photo</span>
@@ -180,6 +213,7 @@
       physioHeroImg.style.display = img ? 'block' : 'none';
       if (img) physioHeroImg.src = img;
       if (physioHeroPlaceholder) physioHeroPlaceholder.style.display = img ? 'none' : '';
+      applyImgFocalPoint(physioHeroImg, D.physio.hero.image_position);
     }
 
     /* ── PHYSIO: services ────────────────────────────────────── */
@@ -208,7 +242,7 @@
         <div class="physio-card" data-fw-section="physio.specialists">
           <div class="physio-img-wrap">
             ${sp.img
-              ? `<img class="physio-img" data-fw="physio.specialists.${i}.img" src="${sp.img}" alt="${sp.name}">`
+              ? `<img class="physio-img" data-fw="physio.specialists.${i}.img" src="${sp.img}" style="${focalPointStyleStr(sp.img_position)}" alt="${sp.name}">`
               : `<div class="physio-img-placeholder" data-fw-click="physio.specialists.${i}.img">
                   <svg viewBox="0 0 80 80" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="30" r="16"/><path d="M10 72 C10 50 70 50 70 72"/></svg>
                   <span>Insert Photo</span>
