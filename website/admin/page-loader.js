@@ -1,34 +1,28 @@
 (function () {
-  /* ── admin-managed photos start hidden (opacity:0, set in index.html's own
-     <head> so nothing can paint before it) — real visitors never see whatever
-     is baked into this HTML, only the confirmed-current value from Supabase.
-     Every code path that resolves what an image should show (unchanged,
-     changed, or missing) must end by revealing it; the timers below are a
-     safety net so a slow/failed/malformed fetch can never leave a photo
-     invisible forever. ───────────────────────────────────────────────── */
-  function revealImage(el) {
-    if (el.style.opacity !== '1') el.style.opacity = '1';
-  }
-  function revealAllImages() {
-    document.querySelectorAll('img[data-fw], [data-fw-bg]').forEach(revealImage);
-  }
-  setTimeout(revealAllImages, 3000); // absolute backstop
+  /* ── real visitors load the page's static HTML first (instant), then this
+     script fetches the latest saved content and patches it in — for a photo
+     that differs from the static default, swapping it outright causes a
+     visible pop from the old image to the new one. Preloading the new image
+     off-screen and only revealing it once it's actually ready, via a short
+     fade, turns that into a deliberate transition instead. ─────────────── */
+  const fadeStyle = document.createElement('style');
+  fadeStyle.textContent = 'img[data-fw],[data-fw-bg]{transition:opacity .25s ease;}';
+  document.head.appendChild(fadeStyle);
 
   function patchImage(el, val, isBg) {
-    if (val == null || (!isBg && el.getAttribute('src') === val)) {
-      revealImage(el);
-      return;
-    }
+    if (!isBg && el.getAttribute('src') === val) return;
     const next = new Image();
     next.onload = () => {
-      if (isBg) el.style.backgroundImage = `url('${val}')`;
-      else el.src = val;
-      requestAnimationFrame(() => revealImage(el));
+      el.style.opacity = '0';
+      setTimeout(() => {
+        if (isBg) el.style.backgroundImage = `url('${val}')`;
+        else el.src = val;
+        requestAnimationFrame(() => { el.style.opacity = '1'; });
+      }, 200);
     };
     next.onerror = () => {
       if (isBg) el.style.backgroundImage = `url('${val}')`;
       else el.src = val;
-      revealImage(el);
     };
     next.src = val;
   }
@@ -36,7 +30,7 @@
   /* ── shared patch logic — used for both the initial GET and any live
      postMessage update from the kundenzugang admin panel ─────────────── */
   function applyData(D) {
-    if (!D) { revealAllImages(); return; }
+    if (!D) return;
 
     /* ── accent color ────────────────────────────────────────── */
     if (D.site && D.site.accent) {
@@ -51,16 +45,14 @@
     document.querySelectorAll('[data-fw]').forEach(el => {
       const key = el.getAttribute('data-fw');
       const val = resolvePath(D, key);
+      if (val == null) return;
       if (el.tagName === 'IMG') {
         patchImage(el, val, false);
-        return;
-      }
-      if (el.hasAttribute('data-fw-bg')) {
+      } else if (el.hasAttribute('data-fw-bg')) {
         patchImage(el, val, true);
-        return;
+      } else {
+        el.innerHTML = String(val).replace(/\n/g, '<br>');
       }
-      if (val == null) return;
-      el.innerHTML = String(val).replace(/\n/g, '<br>');
     });
 
     /* ── stat count-up sync ───────────────────────────────────
@@ -300,27 +292,16 @@
       }, { threshold: 0.1 });
       specRoot.querySelectorAll('.physio-card').forEach(c => pio.observe(c));
     }
-
-    // Locations/testimonials/specialists above are rebuilt from template
-    // strings with the correct src already baked in (they don't exist until
-    // this function creates them, so there's no stale content to hide from)
-    // — but they still match the img[data-fw] CSS selector that hides
-    // photos by default, so they need this catch-all reveal too.
-    revealAllImages();
   }
 
   /* ── initial load: fetch real data and patch ──────────────────────── */
   (async function () {
     try {
       const res = await fetch('/admin/api/data');
-      if (!res.ok) { revealAllImages(); return; }
+      if (!res.ok) return;
       const D = await res.json();
       applyData(D);
-    } catch (_) {
-      // Offline or the endpoint is down — fall back to whatever is baked
-      // into this HTML rather than leaving photos invisible forever.
-      revealAllImages();
-    }
+    } catch (_) { /* silent — page renders fine with hardcoded content */ }
   })();
 
   /* ── live preview: patch instantly from postMessage while editing in

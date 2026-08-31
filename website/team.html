@@ -10,12 +10,6 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    /* Admin-managed photos start invisible so the page never paints whatever
-       is baked into this HTML before admin/page-loader.js confirms the
-       current saved value — only ever the correct photo becomes visible,
-       never a stale one first. Set here in the head so nothing can paint
-       before this. */
-    img[data-fw], [data-fw-bg] { opacity: 0; transition: opacity .35s ease; }
     body {
       font-family: 'Inter', system-ui, sans-serif;
       background: #f9f9f9; color: #0a0a0a;

@@ -212,14 +212,6 @@
       background-repeat: no-repeat;
       display: flex; align-items: center; justify-content: center;
     }
-    /* Admin-managed photos start invisible so the page never paints whatever
-       is baked into this HTML before admin/page-loader.js confirms the
-       current saved value (which may differ, right after an edit) — only
-       ever the correct photo becomes visible, never a stale one first. Set
-       here in the head, not from the deferred script, so nothing can paint
-       before this. Text content sits in separate elements, never inside
-       these, so hiding the photo layer never hides copy. */
-    img[data-fw], [data-fw-bg] { opacity: 0; transition: opacity .35s ease; }
     .hero-placeholder {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 14px;
