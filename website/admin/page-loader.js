@@ -1,4 +1,32 @@
 (function () {
+  /* ── real visitors load the page's static HTML first (instant), then this
+     script fetches the latest saved content and patches it in — for a photo
+     that differs from the static default, swapping it outright causes a
+     visible pop from the old image to the new one. Preloading the new image
+     off-screen and only revealing it once it's actually ready, via a short
+     fade, turns that into a deliberate transition instead. ─────────────── */
+  const fadeStyle = document.createElement('style');
+  fadeStyle.textContent = 'img[data-fw],[data-fw-bg]{transition:opacity .25s ease;}';
+  document.head.appendChild(fadeStyle);
+
+  function patchImage(el, val, isBg) {
+    if (!isBg && el.getAttribute('src') === val) return;
+    const next = new Image();
+    next.onload = () => {
+      el.style.opacity = '0';
+      setTimeout(() => {
+        if (isBg) el.style.backgroundImage = `url('${val}')`;
+        else el.src = val;
+        requestAnimationFrame(() => { el.style.opacity = '1'; });
+      }, 200);
+    };
+    next.onerror = () => {
+      if (isBg) el.style.backgroundImage = `url('${val}')`;
+      else el.src = val;
+    };
+    next.src = val;
+  }
+
   /* ── shared patch logic — used for both the initial GET and any live
      postMessage update from the kundenzugang admin panel ─────────────── */
   function applyData(D) {
@@ -19,9 +47,9 @@
       const val = resolvePath(D, key);
       if (val == null) return;
       if (el.tagName === 'IMG') {
-        el.src = val;
+        patchImage(el, val, false);
       } else if (el.hasAttribute('data-fw-bg')) {
-        el.style.backgroundImage = `url('${val}')`;
+        patchImage(el, val, true);
       } else {
         el.innerHTML = String(val).replace(/\n/g, '<br>');
       }

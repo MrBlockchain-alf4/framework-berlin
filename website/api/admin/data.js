@@ -58,6 +58,10 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  // Real visitors fetch this on every page load to patch in the latest saved
+  // content — it must never be served stale from an edge/browser cache, or a
+  // save can appear to "not take" until the cache expires.
+  res.setHeader('Cache-Control', 'no-store');
 
   if (req.method === 'OPTIONS') {
     res.status(204).end();
