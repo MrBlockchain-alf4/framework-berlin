@@ -69,7 +69,8 @@ module.exports = async (req, res) => {
       try {
         const data = await supabaseGet();
         if (data) {
-          res.status(200).json(data);
+          const { _history, ...clean } = data;
+          res.status(200).json(clean);
           return;
         }
         // No row yet — first run. Fall through to the bundled seed data below.
@@ -89,13 +90,53 @@ module.exports = async (req, res) => {
   }
 
   if (req.method === 'POST') {
+    // ?action=revert restores the site to the state it was in right before
+    // the last save (one-level undo). Every normal save stashes the data it's
+    // about to overwrite under `_history`; a revert swaps `_history` back in
+    // as the current data and keeps the just-discarded version as the new
+    // `_history`, so pressing it again toggles back and forth. `_history` is
+    // never sent to normal GET callers — it only exists inside the stored
+    // Supabase row.
+    const isRevert = req.query && req.query.action === 'revert';
+
     if (supabaseConfigured) {
       try {
-        await supabaseUpsert(req.body);
-        res.status(200).json({ ok: true });
+        let payload;
+        if (isRevert) {
+          const current = await supabaseGet();
+          if (!current || !current._history) {
+            res.status(400).json({ ok: false, error: 'Nothing to revert to yet.' });
+            return;
+          }
+          const currentClean = { ...current };
+          delete currentClean._history;
+          payload = { ...current._history, _history: currentClean };
+        } else {
+          const previous = await supabaseGet().catch(() => null);
+          payload = { ...req.body };
+          if (previous) {
+            const previousClean = { ...previous };
+            delete previousClean._history;
+            payload._history = previousClean;
+          } else {
+            delete payload._history;
+          }
+        }
+        await supabaseUpsert(payload);
+        const { _history, ...clean } = payload;
+        res.status(200).json({ ok: true, data: clean });
       } catch (err) {
-        res.status(500).json({ ok: false, error: 'Supabase write failed', detail: String(err) });
+        res.status(500).json({
+          ok: false,
+          error: isRevert ? 'Supabase revert failed' : 'Supabase write failed',
+          detail: String(err),
+        });
       }
+      return;
+    }
+
+    if (isRevert) {
+      res.status(400).json({ ok: false, error: 'Revert requires Supabase to be configured.' });
       return;
     }
     try {
