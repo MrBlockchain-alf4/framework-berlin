@@ -324,6 +324,14 @@
     hlStyle.textContent = '.fw-admin-hl{outline:2px solid #00D4FF !important;outline-offset:2px;border-radius:2px;}';
     document.head.appendChild(hlStyle);
 
+    // Single click selects the field for editing (default). A second click on
+    // the same element within DBL_CLICK_MS is treated as an intentional
+    // double-click and is let through untouched, so real page buttons can
+    // still be tested inside the preview.
+    let lastClickEl = null;
+    let lastClickTime = 0;
+    const DBL_CLICK_MS = 400;
+
     document.addEventListener('click', function (e) {
       // data-fw-click marks elements that should be selectable but must
       // never be content-patched by applyData() (e.g. the hero overlay
@@ -340,6 +348,17 @@
           ? fwClickEl.getAttribute('data-fw-click')
           : null;
       if (!path && !sectionEl) return;
+
+      const matchEl = fwEl || fwClickEl || sectionEl;
+      const now = Date.now();
+      if (lastClickEl === matchEl && now - lastClickTime < DBL_CLICK_MS) {
+        lastClickEl = null;
+        lastClickTime = 0;
+        return;
+      }
+      lastClickEl = matchEl;
+      lastClickTime = now;
+
       e.preventDefault();
       e.stopPropagation();
       window.parent.postMessage(
