@@ -4,13 +4,31 @@
      that differs from the static default, swapping it outright causes a
      visible pop from the old image to the new one. Preloading the new image
      off-screen and only revealing it once it's actually ready, via a short
-     fade, turns that into a deliberate transition instead. ─────────────── */
+     fade, turns that into a deliberate transition instead. A copy of the
+     last-fetched data is also cached in localStorage and applied instantly
+     (no fade, no network wait) before the real fetch even starts — so a
+     returning visitor whose cache is still fresh never sees the old photo
+     at all, not even briefly. First-ever visitors (no cache yet) still see
+     the static default until the fetch resolves, same as before. ───────── */
   const fadeStyle = document.createElement('style');
   fadeStyle.textContent = 'img[data-fw],[data-fw-bg]{transition:opacity .25s ease;}';
   document.head.appendChild(fadeStyle);
 
-  function patchImage(el, val, isBg) {
+  const CACHE_KEY = 'fw_admin_cache_v1';
+  function readCache() {
+    try { return JSON.parse(localStorage.getItem(CACHE_KEY) || 'null'); } catch (_) { return null; }
+  }
+  function writeCache(D) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(D)); } catch (_) { /* storage full or blocked — skip */ }
+  }
+
+  function patchImage(el, val, isBg, instant) {
     if (!isBg && el.getAttribute('src') === val) return;
+    if (instant) {
+      if (isBg) el.style.backgroundImage = `url('${val}')`;
+      else el.src = val;
+      return;
+    }
     const next = new Image();
     next.onload = () => {
       el.style.opacity = '0';
@@ -29,7 +47,7 @@
 
   /* ── shared patch logic — used for both the initial GET and any live
      postMessage update from the kundenzugang admin panel ─────────────── */
-  function applyData(D) {
+  function applyData(D, instant) {
     if (!D) return;
 
     /* ── accent color ────────────────────────────────────────── */
@@ -47,9 +65,9 @@
       const val = resolvePath(D, key);
       if (val == null) return;
       if (el.tagName === 'IMG') {
-        patchImage(el, val, false);
+        patchImage(el, val, false, instant);
       } else if (el.hasAttribute('data-fw-bg')) {
-        patchImage(el, val, true);
+        patchImage(el, val, true, instant);
       } else {
         el.innerHTML = String(val).replace(/\n/g, '<br>');
       }
@@ -295,13 +313,17 @@
   }
 
   /* ── initial load: fetch real data and patch ──────────────────────── */
+  const cached = readCache();
+  if (cached) applyData(cached, true);
+
   (async function () {
     try {
       const res = await fetch('/admin/api/data');
       if (!res.ok) return;
       const D = await res.json();
-      applyData(D);
-    } catch (_) { /* silent — page renders fine with hardcoded content */ }
+      writeCache(D);
+      applyData(D, false);
+    } catch (_) { /* silent — page renders fine with hardcoded/cached content */ }
   })();
 
   /* ── live preview: patch instantly from postMessage while editing in
