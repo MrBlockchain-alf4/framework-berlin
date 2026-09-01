@@ -660,6 +660,21 @@
   .fw-chip:hover { background: rgba(26,58,42,0.3); border-color: rgba(95,168,122,0.35); color: rgba(255,255,255,0.82); transform: translateY(-1px); }
   .fw-chip:active { transform: translateY(0); }
 
+  /* Inline action buttons (booking location choice / confirm) — sit inside
+     the message bubble itself so they stay in the scroll history, unlike
+     the transient chips row which clears on every new query. */
+  .fw-inline-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
+  .fw-btn-primary {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'Syne',sans-serif; font-size: 11.5px; font-weight: 700;
+    letter-spacing: 0.04em; color: #fff;
+    background: #1a3a2a; border: 1px solid rgba(95,168,122,0.4);
+    padding: 9px 16px; border-radius: 8px; cursor: pointer;
+    transition: background 0.2s, transform 0.15s, border-color 0.2s;
+  }
+  .fw-btn-primary:hover { background: #204a35; border-color: rgba(95,168,122,0.65); transform: translateY(-1px); }
+  .fw-btn-primary:active { transform: translateY(0); }
+
   .fw-input-row {
     display: flex; align-items: center; gap: 9px;
     padding: 11px 13px 13px;
@@ -801,10 +816,63 @@
         typing.remove();
         const lang   = detectLang(raw);
         const intent = findIntent(raw);
-        const result = buildResponse(intent, lang);
-        addBot(result.text, result.chips);
+        if (intent && intent.id === 'booking') {
+          startBookingFlow(lang);
+        } else {
+          const result = buildResponse(intent, lang);
+          addBot(result.text, result.chips);
+        }
         scrollDown();
       }, 540 + Math.random() * 460);
+    }
+
+    // ── BOOKING FLOW: ask which studio, then hand off to its Schedule page.
+    // Kept separate from the normal intent/chip system because these are
+    // real decision buttons (pick a studio, confirm) rather than suggested
+    // follow-up questions, and the destination page/copy differs per studio. ──
+    function startBookingFlow(lang) {
+      const text = lang === 'de'
+        ? 'Gerne! In welchem Studio möchtest du buchen?'
+        : "I'd love to help! Which studio would you like to book at?";
+      addBotActions(text, [
+        { label: 'Prenzlauer Berg', onClick: () => chooseBookingLocation('pberg', 'Prenzlauer Berg', lang) },
+        { label: 'Kreuzberg', onClick: () => chooseBookingLocation('xberg', 'Kreuzberg', lang) },
+      ]);
+    }
+
+    function chooseBookingLocation(slug, name, lang) {
+      addUser(name);
+      const text = lang === 'de'
+        ? `Perfekt! Um deine Buchung in ${name} abzuschließen, klicke unten:`
+        : `Great choice! To complete your booking at ${name}, click below:`;
+      addBotActions(text, [
+        {
+          label: lang === 'de' ? 'Buchung abschließen →' : 'Complete Booking →',
+          onClick: () => { window.location.href = `${slug}-schedule.html`; },
+        },
+      ]);
+    }
+
+    function addBotActions(text, actions) {
+      const w = document.createElement('div');
+      w.className = 'fw-msg bot';
+      const b = document.createElement('div');
+      b.className = 'fw-bubble';
+      b.innerHTML = md(text);
+      w.appendChild(b);
+      const row = document.createElement('div');
+      row.className = 'fw-inline-actions';
+      actions.forEach(({ label, onClick }) => {
+        const btn = document.createElement('button');
+        btn.className = 'fw-btn-primary';
+        btn.textContent = label;
+        btn.addEventListener('click', onClick);
+        row.appendChild(btn);
+      });
+      w.appendChild(row);
+      msgs.appendChild(w);
+      renderChips([]);
+      scrollDown();
     }
 
     function submit() {
