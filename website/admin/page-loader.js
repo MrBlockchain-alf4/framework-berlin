@@ -123,6 +123,15 @@
     }
     window._fwFocalPointStyleStr = focalPointStyleStr;
 
+    // Which studio's Schedule page a location card's "View Schedule" button
+    // should link to — derived from the neighborhood/name text rather than
+    // array index, so it still points to the right page if the two
+    // locations are ever reordered in the admin.
+    function scheduleSlugFor(loc) {
+      const n = ((loc && loc.neighborhood) || (loc && loc.name) || '').toLowerCase();
+      return n.includes('kreuzberg') || n.includes('xberg') ? 'xberg' : 'pberg';
+    }
+
     const heroBg = document.getElementById('hero-bg');
     applyBgFocalPoint(heroBg, D.home?.hero?.image_position);
 
@@ -212,7 +221,10 @@
           <div class="loc-body">
             <p class="loc-address" data-fw="home.locations.${i}.address">${loc.address}</p>
             <p class="loc-hours" data-fw="home.locations.${i}.hours">${loc.hours}</p>
-            <a href="${(D.site && D.site.booking_url) || '#'}" class="loc-btn" target="_blank" rel="noopener">Book on ClassPass →</a>
+            <div class="loc-btn-row">
+              <a href="${(D.site && D.site.booking_url) || '#'}" class="loc-btn" target="_blank" rel="noopener">Book on ClassPass →</a>
+              <a href="${scheduleSlugFor(loc)}-schedule.html" class="loc-btn-outline">View Schedule →</a>
+            </div>
           </div>
         </div>`).join('');
       if (window._fw_io) {
