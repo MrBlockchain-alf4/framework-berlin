@@ -384,7 +384,7 @@
       <div class="footer-grid">
         <div>
           <div class="footer-logo"><img src="/public/images/Framework_White_Transparent.png" alt="Framework Berlin" data-fw="site.logo" /></div>
-          <p class="footer-tagline">Premium Lagree &amp; Physiotherapy Studio in Berlin</p>
+          <p class="footer-tagline" data-fw="footer.tagline">Premium Lagree &amp; Physiotherapy Studio in Berlin</p>
         </div>
         <div>
           <div class="f-col-head">Studio</div>
@@ -411,7 +411,7 @@
         </div>
       </div>
     </div>
-    <div class="footer-inner"><div class="footer-bottom"><p>© 2026 Framework Berlin. All rights reserved.</p></div></div>
+    <div class="footer-inner"><div class="footer-bottom"><p data-fw="footer.copyright">© 2026 Framework Berlin. All rights reserved.</p></div></div>
   </footer>
 
   <script src="/admin/page-loader.js" defer></script>
@@ -667,15 +667,15 @@
           <div class="tm-bio-fields">
             <div class="tm-bio-field">
               <div class="tm-bio-label">I love Lagree</div>
-              <p class="tm-bio-val">"${m.love}"</p>
+              <p class="tm-bio-val" data-fw="team.members.${i}.love">"${m.love}"</p>
             </div>
             <div class="tm-bio-field">
               <div class="tm-bio-label">Random fact</div>
-              <p class="tm-bio-val">"${m.fact}"</p>
+              <p class="tm-bio-val" data-fw="team.members.${i}.fact">"${m.fact}"</p>
             </div>
             <div class="tm-bio-field">
-              <div class="tm-bio-label">${m.f3l}</div>
-              <p class="tm-bio-val plain">${m.f3}</p>
+              <div class="tm-bio-label" data-fw="team.members.${i}.f3l">${m.f3l}</div>
+              <p class="tm-bio-val plain" data-fw="team.members.${i}.f3">${m.f3}</p>
             </div>
           </div>
         </div>` : '';
