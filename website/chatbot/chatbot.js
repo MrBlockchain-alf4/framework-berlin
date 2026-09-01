@@ -247,10 +247,10 @@
     /* ── BOOKING ──────────────────────────────────────────── */
     {
       id: 'booking',
-      phrases:    ['how to book', 'book a class', 'reserve a spot', 'sign up for a class', 'can i book online', 'where to book'],
-      keywords:   ['book', 'booking', 'reserve', 'sign up', 'bsport', 'classpass', 'online', 'register', 'app'],
-      phrases_de: ['wie buche ich', 'einen kurs buchen', 'platz reservieren', 'wie reserviere ich', 'wo buchen', 'kurs anmelden', 'wie kann ich buchen'],
-      keywords_de:['buchen', 'buchung', 'reservieren', 'anmelden', 'bsport', 'classpass', 'online', 'registrieren', 'app', 'reservierung'],
+      phrases:    ['how to book', 'book a class', 'reserve a spot', 'sign up for a class', 'can i book online', 'where to book', 'i want to schedule', 'make an appointment', 'set up an appointment', 'get an appointment', 'schedule a class', 'schedule an appointment', 'book an appointment', 'i want to book'],
+      keywords:   ['book', 'booking', 'reserve', 'sign up', 'bsport', 'classpass', 'online', 'register', 'app', 'schedule', 'appointment'],
+      phrases_de: ['wie buche ich', 'einen kurs buchen', 'platz reservieren', 'wie reserviere ich', 'wo buchen', 'kurs anmelden', 'wie kann ich buchen', 'termin vereinbaren', 'einen termin machen', 'ich möchte einen termin', 'ich würde gerne einen termin', 'termin ausmachen', 'termin buchen'],
+      keywords_de:['buchen', 'buchung', 'reservieren', 'anmelden', 'bsport', 'classpass', 'online', 'registrieren', 'app', 'reservierung', 'termin'],
       response:    "Classes are booked via two platforms:\n\n📱 **Bsport** — primary platform for all credit packs · valid at both studios\n📱 **ClassPass** — for ClassPass members\n\n⚠️ **ClassPass note**: Framework cannot modify or cancel ClassPass reservations — changes must be made directly through the ClassPass app.\n\nFor **monthly memberships** (Mega Membership / 10 for Members), email support@frameworkberlin.com — these cannot be booked online.",
       response_de: "Kurse können über zwei Plattformen gebucht werden:\n\n📱 **Bsport** — Hauptplattform für alle Creditpakete · gilt in beiden Studios\n📱 **ClassPass** — für ClassPass-Mitglieder\n\n⚠️ **ClassPass-Hinweis**: Framework kann ClassPass-Buchungen nicht ändern oder stornieren — das muss direkt über die ClassPass-App erfolgen.\n\nFür **monatliche Mitgliedschaften** E-Mail an support@frameworkberlin.com — diese sind nicht online buchbar.",
       chips:    ['Pricing', 'Monthly membership', 'First-timer tips'],
